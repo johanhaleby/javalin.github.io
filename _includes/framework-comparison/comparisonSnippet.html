@@ -1,0 +1,25 @@
+<h2>{{include.title}}</h2>
+<div class="side-by-side-code" markdown="1">
+
+
+<div :class="show.javalin ? 'visible' : 'hidden'" class="example" markdown="1">
+<div class="title">Javalin</div>
+```kotlin
+{% include framework-comparison/javalin/{{include.filename}}.kt %}```
+</div>
+
+
+<div :class="show.ktor ? 'visible' : 'hidden'" class="example" markdown="1">
+<div class="title">Ktor</div>
+```kotlin
+{% include framework-comparison/ktor/{{include.filename}}.kt %}```
+</div>
+
+
+<div :class="show.http4k ? 'visible' : 'hidden'" class="example" markdown="1">
+<div class="title">Http4k</div>
+```kotlin
+{% include framework-comparison/http4k/{{include.filename}}.kt %}```
+</div>
+
+</div>

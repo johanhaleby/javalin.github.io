@@ -1,0 +1,136 @@
+---
+---
+
+$javalin-brand-primary: #008ab4;
+
+.width-limit {
+  max-width: 1200px;
+}
+
+main {
+  padding-top: 20px;
+  padding-bottom: 10px;
+}
+
+#jetbrains-survey {
+  display: none;
+}
+
+[v-cloak] {
+  display: none;
+}
+
+#bias-disclaimer {
+  font-size: 14px;
+  line-height: 1.2;
+  margin-bottom: 20px;
+}
+
+#code-examples {
+  overflow: auto;
+  background: #eee;
+  padding: 0 15px 20px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  max-height: 70vh;
+  h2 {
+    margin-top: 30px;
+  }
+  h3 {
+    font-weight: 400;
+    text-align: center;
+  }
+}
+
+.side-by-side-code {
+  display: flex;
+  justify-content: space-between;
+  .example {
+    width: 32%;
+    &.visible ~ .example {
+      margin-left: 20px;
+    }
+    &.hidden {
+      width: 0;
+      flex-grow: 0;
+      opacity: 0;
+      margin: 0 !important;
+      .highlighter-rouge {
+        overflow: hidden;
+      }
+    }
+    flex-grow: 1;
+    .title {
+      border-radius: 5px 5px 0 0;
+      background: #31312a;
+      display: block;
+      color: white;
+      padding: 5px 10px;
+      border-bottom: 1px solid #444;
+      text-align: center;
+      font: 14px monospace;
+      font-weight: 700;
+    }
+    .highlighter-rouge {
+      .toolbar {
+        display: none;
+      }
+      margin-top: 0;
+      width: 100%;
+      pre {
+        overflow-x: scroll;
+        border-radius: 0 0 5px 5px;
+      }
+    }
+  }
+}
+
+#framework-toggle {
+  background: #e5e5e5;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  .tn-toggle {
+    -webkit-touch-callout: none;
+    user-select: none;
+    display: inline-block;
+    position: relative;
+    height: 24px;
+    line-height: 24px;
+    &__checkbox {
+      display: none;
+    }
+    &__text {
+      padding-right: 5px;
+      padding-left: 50px;
+      font-size: 16px;
+    }
+    &__checkbox + .tn-toggle__text::before {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 44px;
+      height: 24px;
+      border-radius: 24px;
+      background: #bbb;
+      content: "";
+    }
+    &__checkbox + .tn-toggle__text::after {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      transition: left 150ms ease;
+      border-radius: 10px;
+      background: #fff;
+      content: "";
+    }
+    &__checkbox:checked + .tn-toggle__text::before {
+      background: rgba($javalin-brand-primary, .3);
+    }
+    &__checkbox:checked + .tn-toggle__text::after {
+      left: 23px;
+      background: $javalin-brand-primary;
+    }
+  }
+}
