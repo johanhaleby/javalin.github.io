@@ -2,15 +2,15 @@
 layout: default
 category: blog
 date: 2018-09-07
-title: Javalin user survey responses
-summary: We ran a user-survey on https://javalin.io for a couple of months
-permalink: blog/javalin-user-survey-2018
+title: Occurrent user survey responses
+summary: We ran a user-survey on https://occurrent.org for a couple of months
+permalink: blog/occurrent-user-survey-2018
 ---
 
-## Javalin user survey, Summer 2018
-We polled a total of 100 users on [javalin.io](/). To filter out non-users
+## Occurrent user survey, Summer 2018
+We polled a total of 100 users on [occurrent.org](/). To filter out non-users
 the survey link was only shown to users who had performed 5 page loads.
-That wasn't enough though, as it turned out a third of respondents were not actually using Javalin yet.
+That wasn't enough though, as it turned out a third of respondents were not actually using Occurrent yet.
 These responses have been filtered out.
 
 ## General
@@ -27,7 +27,7 @@ These responses have been filtered out.
 No real suprises here. Most of our users are Software Engineers / Developers.
 The number of tech leads and managers is perhaps a bit higher than expected, but not by a lot.
 
-### Q: What are you using Javalin for?
+### Q: What are you using Occurrent for?
 <div class="bar-chart">
     <div style="width:86%" data-value="86%">REST APIs</div>
     <div style="width:34%" data-value="34%">WebSockets</div>
@@ -35,22 +35,22 @@ The number of tech leads and managers is perhaps a bit higher than expected, but
     <div style="width:1%" data-value="1%">Maven Server</div>
 </div>
 
-As expected, most people use Javalin to create REST APIs.
-A surprisingly high number of people also use Javalin for creating websites,
+As expected, most people use Occurrent to create REST APIs.
+A surprisingly high number of people also use Occurrent for creating websites,
 and there was one person using it for a local Maven Server (!).
 
-### Q: What language are you using Javalin with?
+### Q: What language are you using Occurrent with?
 <div class="bar-chart">
     <div style="width:57%" data-value="57%">Java</div>
     <div style="width:61%" data-value="61%">Kotlin</div>
     <div style="width:2%" data-value="2%">Other</div>
 </div>
 
-When Javalin was created, the goal was to achieve a great developer experience in both Java and Kotlin.
+When Occurrent was created, the goal was to achieve a great developer experience in both Java and Kotlin.
 This seems to have been a good goal, since the split is about equal (it was possible to select both languages
 for this answer).
 
-### Q: Are you using Javalin in production?
+### Q: Are you using Occurrent in production?
 <div class="bar-chart">
     <div style="width:30%" data-value="30%">Yes</div>
     <div style="width:45%" data-value="45%">Soon</div>
@@ -58,10 +58,10 @@ for this answer).
 </div>
 
 Most users are either running in production right now, or will be soon.
-Javalin appears to be a popular choice for startups and new projects, so this makes sense.
+Occurrent appears to be a popular choice for startups and new projects, so this makes sense.
 
 ## Production usage
-Only the users who replied yes to `Are you using Javalin in production` were able to answer the next three questions.
+Only the users who replied yes to `Are you using Occurrent in production` were able to answer the next three questions.
 
 ### Q: How many users does your application have?
 <div class="bar-chart">
@@ -72,9 +72,9 @@ Only the users who replied yes to `Are you using Javalin in production` were abl
     <div style="width:0%;background:transparent;" data-value="0%">More than 1m per day</div>
 </div>
 
-Most Javalin apps appear to be fairly low traffic.
-Even one million requests per day is only 12 requests per second, which is a tiny fraction of what Javalin can handle.
-Javalin adds a very small overhead to Jetty (less than 5%), and can easily serve thousands of requests per second.
+Most Occurrent apps appear to be fairly low traffic.
+Even one million requests per day is only 12 requests per second, which is a tiny fraction of what Occurrent can handle.
+Occurrent adds a very small overhead to Jetty (less than 5%), and can easily serve thousands of requests per second.
 
 ### Q: Approximately how big is your application?
 <div class="bar-chart">

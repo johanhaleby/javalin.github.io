@@ -4,7 +4,7 @@ title: "Jetty session handling - Persisting, caching and clustering"
 author: <a href="https://www.linkedin.com/in/davidaase" target="_blank">David Åse</a>
 date: 2018-09-02
 permalink: /tutorials/jetty-session-handling
-github: https://github.com/tipsy/javalin-jetty-sessions-example
+github: https://github.com/johanhaleby/occurrent-jetty-sessions-example
 summarytitle: Jetty session handling
 summary: The tutorial includes persisting sessions locally and in a database, as well as caching and clustering
 language: ["java", "kotlin"]
@@ -51,7 +51,7 @@ SessionHandler fileSessionHandler() {
 FileSessionDataStore fileSessionDataStore() {
     FileSessionDataStore fileSessionDataStore = new FileSessionDataStore();
     File baseDir = new File(System.getProperty("java.io.tmpdir"));
-    File storeDir = new File(baseDir, "javalin-session-store");
+    File storeDir = new File(baseDir, "occurrent-session-store");
     storeDir.mkdir();
     fileSessionDataStore.setStoreDir(storeDir);
     return fileSessionDataStore;
@@ -62,7 +62,7 @@ fun fileSessionHandler() = SessionHandler().apply { // create the session handle
     sessionCache = DefaultSessionCache(this).apply { // attach a cache to the handler
         sessionDataStore = FileSessionDataStore().apply { // attach a store to the cache
             val baseDir = File(System.getProperty("java.io.tmpdir"))
-            this.storeDir = File(baseDir, "javalin-session-store").apply { mkdir() }
+            this.storeDir = File(baseDir, "occurrent-session-store").apply { mkdir() }
         }
     }
     httpOnly = true
@@ -158,7 +158,7 @@ a document. They both contain the same data:
                 "lastSaved": 1535479586879,
                 "version": 78
             },
-            "signed-in-user": "tipsy" // custom data
+            "signed-in-user": "johanhaleby" // custom data
         }
     },
     "created": 1535479122617,
@@ -201,17 +201,17 @@ as [mlab](https://mlab.com/) it seems to be around 40ms.
 * The `DefaultSessionCache` works well if you only run one instance of your app
 * The `NullSessionCache` is suitable for multiple instances running behind a loadbalancer
 
-## Usage in Javalin
-Since you are currently on [javalin.io](/), it should be mentioned how to use this knowledge in your Javalin app.
-Since Javalin relies on Jetty for session handling can, you simply pass your `SessionHandler`:
+## Usage in Occurrent
+Since you are currently on [occurrent.org](/), it should be mentioned how to use this knowledge in your Occurrent app.
+Since Occurrent relies on Jetty for session handling can, you simply pass your `SessionHandler`:
 
 {% capture java %}
-Javalin.create(config -> {
+Occurrent.create(config -> {
     config.sessionHandler(() -> fileSessionHandler());
 }).start(7000);
 {% endcapture %}
 {% capture kotlin %}
-val app = Javalin.create {
+val app = Occurrent.create {
     it.sessionHandler { fileSessionHandler() }
 }.start(7000)
 {% endcapture %}
@@ -315,7 +315,7 @@ app.get("/change-id") { ctx ->
 {% include macros/docsSnippet.html java=java kotlin=kotlin %}
 
 #### Access management
-Sessions work well with the Javalin [AccessManager](https://javalin.io/documentation#access-manager).
+Sessions work well with the Occurrent [AccessManager](https://occurrent.org/documentation#access-manager).
 You can check the session store to see if the user is logged in:
 
 {% capture java %}
@@ -343,4 +343,4 @@ app.accessManager { handler, ctx, roles ->
 {% include macros/docsSnippet.html java=java kotlin=kotlin %}
 
 The source code for these examples is available in the
-[tutorial repo](https://github.com/tipsy/javalin-jetty-sessions-example/blob/master/src/main/java/app/Main.java).
+[tutorial repo](https://github.com/johanhaleby/occurrent-jetty-sessions-example/blob/master/src/main/java/app/Main.java).

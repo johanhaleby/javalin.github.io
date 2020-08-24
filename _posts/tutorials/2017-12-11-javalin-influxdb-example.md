@@ -6,7 +6,7 @@ date: 2017-12-11
 permalink: /tutorials/influxdb
 github: https://github.com/ricardobaumann/real-time-statistics
 summarytitle: Real time analytics with influxDB 
-summary: Learn how to setup Javalin with docker and influxDB
+summary: Learn how to setup Occurrent with docker and influxDB
 language: kotlin
 ---
 
@@ -26,7 +26,7 @@ Before we get started, there are a few things we need to do:
 * Install [Gradle](https://docs.gradle.org/current/userguide/installation.html)
 
 ## Architecture
-The is a javalin microservice application, with 2 endpoints:
+The is a occurrent microservice application, with 2 endpoints:
 - `POST /upload`: Receive events and insert them on database. If the event is old, discard it.
 - `GET /statistics`: Return a summary of the events (count, sum, min and max)
 
@@ -44,7 +44,7 @@ val influxHost = System.getenv().getOrDefault("influx.host", "influxdb")!!
 val influxDB: InfluxDB by lazy { InfluxDBFactory.connect("http://$influxHost:8086", "root", "root") }
 
 fun main(args: Array<String>) {
-    val app = Javalin.create().start(7000)
+    val app = Occurrent.create().start(7000)
     val statisticService = StatisticsService(influxDB)
     val controller = Controller(statisticService)
 

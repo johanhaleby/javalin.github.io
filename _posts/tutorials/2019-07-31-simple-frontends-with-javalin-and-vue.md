@@ -3,14 +3,14 @@ layout: tutorial
 title: Clean Vue frontends without the hassle
 author: <a href="https://www.linkedin.com/in/davidaase" target="_blank">David Åse</a>
 date: 2019-07-31
-permalink: /tutorials/simple-frontends-with-javalin-and-vue
-github: https://github.com/tipsy/javalinvue-example
-summarytitle: Simple frontends with Javalin and Vue
-summary: The tutorial shows how to use the JavalinVue plugin for simplified frontend development
+permalink: /tutorials/simple-frontends-with-occurrent-and-vue
+github: https://github.com/johanhaleby/occurrentvue-example
+summarytitle: Simple frontends with Occurrent and Vue
+summary: The tutorial shows how to use the OccurrentVue plugin for simplified frontend development
 language: kotlin
 ---
 
-In this tutorial you'll learn how to create simple frontends with Javalin and Vue.
+In this tutorial you'll learn how to create simple frontends with Occurrent and Vue.
 The tutorial is quite extensive, and covers single-file components, routing, error handling,
 application layouts, access management (plus authentication), and state sharing between server and client.
 
@@ -41,13 +41,13 @@ Just business logic.
 
 ## Setup
 Our backend will be Kotlin, and we'll be using Maven to build.
-We need to bring in Javalin (web library), Jackson (JSON serializer), and slf4j-simple (logger).\\
+We need to bring in Occurrent (web library), Jackson (JSON serializer), and slf4j-simple (logger).\\
 We'll also add Vue (view library) for our frontend:
 
 ```markup
 <dependency>
-    <groupId>io.javalin</groupId>
-    <artifactId>javalin</artifactId>
+    <groupId>org.occurrent</groupId>
+    <artifactId>occurrent</artifactId>
     <version>3.3.0</version>
 </dependency>
 <dependency>
@@ -70,17 +70,17 @@ We'll also add Vue (view library) for our frontend:
 <div class="comment" markdown="1">
 You can add all frontend dependencies as [Webjars](https://www.webjars.org/), which can be built directly from NPM.
 If something is available on NPM, it's also available as a Webjar, but as a prebuilt dist version (it has no dependencies).
-To view the full POM, please go to [GitHub](https://github.com/tipsy/javalinvue-example/blob/master/pom.xml).
+To view the full POM, please go to [GitHub](https://github.com/johanhaleby/occurrentvue-example/blob/master/pom.xml).
 </div>
 
 Now that we have all our dependencies in order, we need to configure our web server.\\
-Let's create `/src/main/kotlin/javalinvue/Main.kt`:
+Let's create `/src/main/kotlin/occurrentvue/Main.kt`:
 
 ```kotlin
-import io.javalin.Javalin
+import org.occurrent.Occurrent
 
 fun main() {
-    Javalin.create { config ->
+    Occurrent.create { config ->
         config.enableWebjars()
     }.start(7000)
 }
@@ -107,10 +107,10 @@ Let's create `/src/main/resources/vue/layout.html`:
 </html>
 ```
 
-There are two Javalin specific things here: `@componentRegistration` and `@routeComponent`.
-Javalin's Vue plugin will scan your `/resources/vue` folder and put all your Vue components
+There are two Occurrent specific things here: `@componentRegistration` and `@routeComponent`.
+Occurrent's Vue plugin will scan your `/resources/vue` folder and put all your Vue components
 into `@componentRegistration`, similar to how libraries are loaded via `<script>` tags.
-Javalin will also let you choose one component to mount based on the current URL,
+Occurrent will also let you choose one component to mount based on the current URL,
 this is the `@routeComponent`.
 
 ## Hello World
@@ -135,15 +135,15 @@ We're telling Vue that we want to register a `hello-world` component, and to use
 We're also giving the `Hello, World!` message a color. Notice how we have all HTML, JavaScript and CSS
 for our component encapsulated in the same file.
 
-To display our component to the user, we need to tell Javalin when to show it. Let's expand our web server with a new route:
+To display our component to the user, we need to tell Occurrent when to show it. Let's expand our web server with a new route:
 
 ```kotlin
-import io.javalin.Javalin
-import io.javalin.plugin.rendering.vue.VueComponent
+import org.occurrent.Occurrent
+import org.occurrent.plugin.rendering.vue.VueComponent
 
 fun main() {
 
-    val app = Javalin.create { config ->
+    val app = Occurrent.create { config ->
         config.enableWebjars()
     }.start(7000)
 
@@ -158,7 +158,7 @@ Restart the server, go to `http://localhost:7000/`, and you'll see `Hello, World
 
 <div class="comment" markdown="1">
 Note that you don't have to restart the server when making changes to `.vue` files,
-Javalin will pick up on those automatically.\\
+Occurrent will pick up on those automatically.\\
 The reason we needed to restart now was because we added a new route in the `main` function.
 </div>
 
@@ -181,11 +181,11 @@ app.get("/api/users/:user-id", UserController::getOne)
 ```
 
 We've referenced `UserController` in the previous snippet, but that doesn't exist yet.\\
-So, let's create `/src/main/kotlin/javalinvue/UserController.kt`:
+So, let's create `/src/main/kotlin/occurrentvue/UserController.kt`:
 
 ```kotlin
-import io.javalin.http.Context
-import io.javalin.http.NotFoundResponse
+import org.occurrent.http.Context
+import org.occurrent.http.NotFoundResponse
 
 data class User(val id: String, val name: String, val email: String, val userDetails: UserDetails?)
 data class UserDetails(val dateOfBirth: String, val salary: String)
@@ -290,7 +290,7 @@ Let's fix this by creating `/src/main/resources/vue/views/user-profile.vue`:
             user: null,
         }),
         created() {
-            const userId = this.$javalin.pathParams["user-id"];
+            const userId = this.$occurrent.pathParams["user-id"];
             fetch(`/api/users/${userId}`)
                 .then(res => res.json())
                 .then(res => this.user = res)
@@ -302,7 +302,7 @@ Let's fix this by creating `/src/main/resources/vue/views/user-profile.vue`:
 
 This is pretty similar to our user-overview, but since this is a dynamic route,
 we have to ask our router what the current user-id is.
-JavalinVue includes path parameters and query parameters on `$javalin` by default
+OccurrentVue includes path parameters and query parameters on `$occurrent` by default
 (it also has an optional state parameter we will look at later).
 
 Let's finish up our views with `/src/main/resources/vue/views/not-found.vue`:
@@ -317,13 +317,13 @@ Let's finish up our views with `/src/main/resources/vue/views/not-found.vue`:
 ```{% endraw %}
 
 Great, we have all our views ready! ...but they don't look very consistent.\\
-While not strictly related to JavalinVue, let's add `/src/main/resources/vue/components/app-frame.vue`:
+While not strictly related to OccurrentVue, let's add `/src/main/resources/vue/components/app-frame.vue`:
 
 {% raw %}```html
 <template id="app-frame">
     <div class="app-frame">
         <header>
-            <span>JavalinVue demo app</span>
+            <span>OccurrentVue demo app</span>
         </header>
         <slot></slot>
     </div>
@@ -365,7 +365,7 @@ Now that both the frontend and backend are done, it's time to make things
 more complicated by adding access management to the mix.
 
 ## Access Management
-Access management in Javalin is handled by the aptly named `AccessManager`. This is a functional interface which takes
+Access management in Occurrent is handled by the aptly named `AccessManager`. This is a functional interface which takes
 a handler function, a HTTP context, and a set of roles. It's up to the developer to determine if a request is valid.
 We will be securing our application using basic-auth for simplicity, but you can use any technique and
 identity provider you want with the `AccessManager` interface.
@@ -376,19 +376,19 @@ Two roles should be enough: `ANYONE` and `LOGGED_IN`. We add those roles to the 
 (both for the views and the APIs, and create an `AccessManager`:
 
 ```kotlin
-import io.javalin.Javalin
-import io.javalin.core.security.Role
-import io.javalin.core.security.SecurityUtil.roles
-import io.javalin.core.util.Header
-import io.javalin.http.Context
-import io.javalin.plugin.rendering.vue.JavalinVue
-import io.javalin.plugin.rendering.vue.VueComponent
+import org.occurrent.Occurrent
+import org.occurrent.core.security.Role
+import org.occurrent.core.security.SecurityUtil.roles
+import org.occurrent.core.util.Header
+import org.occurrent.http.Context
+import org.occurrent.plugin.rendering.vue.OccurrentVue
+import org.occurrent.plugin.rendering.vue.VueComponent
 
 enum class AppRole : Role { ANYONE, LOGGED_IN }
 
 fun main() {
 
-    val app = Javalin.create { config ->
+    val app = Occurrent.create { config ->
         config.enableWebjars()
         config.accessManager { handler, ctx, permittedRoles ->
             when {
@@ -418,10 +418,10 @@ This is just an example, our authentication isn't exactly secure. As long as the
 ## Server Side State
 Now that we can log users in, it would be nice if the client knew the current user.
 Our server knows, so we need to transfer this knowledge somehow.
-This can be solved by setting a JavalinVue state function:
+This can be solved by setting a OccurrentVue state function:
 
 ```kotlin
-JavalinVue.stateFunction = { ctx -> mapOf("currentUser" to ctx.basicAuthCredentials()?.username) }
+OccurrentVue.stateFunction = { ctx -> mapOf("currentUser" to ctx.basicAuthCredentials()?.username) }
 ```
 
 This line of code sets a function that will run for every `VueComponent`, so all components will now
@@ -433,8 +433,8 @@ Let's add it to `app-frame.vue`:
 <template id="app-frame">
     <div class="app-frame">
         <header>
-            <span>JavalinVue demo app</span>
-            <span v-if="$javalin.state.currentUser">Current user: '{{$javalin.state.currentUser}}'</span>
+            <span>OccurrentVue demo app</span>
+            <span v-if="$occurrent.state.currentUser">Current user: '{{$occurrent.state.currentUser}}'</span>
         </header>
         <slot></slot>
     </div>
@@ -457,11 +457,11 @@ manage any frontend libraries manually. The project structure is very clean:
 
 <div class="compressed-code" markdown="1">
 ```kotlin
-javalinvue-example
+occurrentvue-example
 ├───src
 │   └─── main
 │       └───kotlin
-│           ├───javalinvue
+│           ├───occurrentvue
 │           │   ├───UserController.kt
 │           │   └───Main.kt
 │           └───resources
@@ -499,7 +499,7 @@ waiting for issues and flaws to present themselves, but I haven't seen any yet.
 Performance is pretty good. The app loads fast and never flickers. Below you see the
 Chrome audit results for the 30 component + 25 view app that I mentioned earlier:
 
-<img src="/img/posts/javalinvue/performance.png" alt="App performance" class="bordered-image">
+<img src="/img/posts/occurrentvue/performance.png" alt="App performance" class="bordered-image">
 
 ### Pros and Cons
 
@@ -522,5 +522,5 @@ Cons
 * Need a Kotlin/Java server for your frontend
 * Tight coupling between server and client
 
-I've created [an issue on GitHub](https://github.com/tipsy/javalinvue-example/issues/1)
+I've created [an issue on GitHub](https://github.com/johanhaleby/occurrentvue-example/issues/1)
 where you can post your pros/cons, or general comments on the tutorial.

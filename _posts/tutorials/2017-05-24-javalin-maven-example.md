@@ -1,11 +1,11 @@
 ---
 layout: tutorial
-title: "Setting up Javalin with Maven"
+title: "Setting up Occurrent with Maven"
 author: <a href="https://www.linkedin.com/in/davidaase" target="_blank">David Åse</a>
 date: 2017-05-24
 permalink: /tutorials/maven-setup
 summarytitle: Maven setup
-summary: Set up a Javalin project using Maven in IntelliJ IDEA and Eclipse.
+summary: Set up a Occurrent project using Maven in IntelliJ IDEA and Eclipse.
 language: java
 ---
 
@@ -31,15 +31,15 @@ Here's a minimal example:
 
     <!-- project coordinates - values which uniquely identify this project -->
     <groupId>com.mygroup</groupId>
-    <artifactId>my-javalin-project</artifactId>
+    <artifactId>my-occurrent-project</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
     <!-- library dependencies -->
     <dependencies>
         <dependency>
-            <groupId>io.javalin</groupId>
-            <artifactId>javalin</artifactId>
-            <version>{{site.javalinversion}}</version>
+            <groupId>org.occurrent</groupId>
+            <artifactId>occurrent</artifactId>
+            <version>{{site.occurrentversion}}</version>
         </dependency>
     </dependencies>
 </project>
@@ -51,19 +51,19 @@ Here's a minimal example:
 * Select `Maven` on the left hand menu and click `Next`
 * Enter GroupId, ArtifactId and Version, and click `Next`
 * Give your project a name and click `Finish`:
-* Paste the Javalin dependency into the generated pom.xml. If prompted, tell IntelliJ to enable auto-import.
+* Paste the Occurrent dependency into the generated pom.xml. If prompted, tell IntelliJ to enable auto-import.
 
 ~~~markup
 <dependencies>
     <dependency>
-        <groupId>io.javalin</groupId>
-        <artifactId>javalin</artifactId>
-        <version>{{site.javalinversion}}</version>
+        <groupId>org.occurrent</groupId>
+        <artifactId>occurrent</artifactId>
+        <version>{{site.occurrentversion}}</version>
     </dependency>
 </dependencies>
 ~~~
 
-Finally, paste the Javalin "Hello World" snippet into a new file, `HelloWorld.java`:
+Finally, paste the Occurrent "Hello World" snippet into a new file, `HelloWorld.java`:
 
 {% include macros/gettingStarted.md %}
 
@@ -99,19 +99,19 @@ and choose `Set language level to 8 - Lambdas, type annotations, etc`.*
 * Expand `Maven` and select `Maven Project`, then click `Next`
 * Check the `Create a simple project` checkbox and click `Next`
 * Enter GroupId, ArtifactId, Verison, and Name, and click `Finish`
-* Open the pom.xml file and click the `pom.xml` tab. Paste the Javalin dependency
+* Open the pom.xml file and click the `pom.xml` tab. Paste the Occurrent dependency
 
 ~~~markup
 <dependencies>
     <dependency>
-        <groupId>io.javalin</groupId>
-        <artifactId>javalin</artifactId>
-        <version>{{site.javalinversion}}</version>
+        <groupId>org.occurrent</groupId>
+        <artifactId>occurrent</artifactId>
+        <version>{{site.occurrentversion}}</version>
     </dependency>
 </dependencies>
 ~~~
 
-Finally, paste the Javalin "Hello World" snippet into a new file, `HelloWorld.java`:
+Finally, paste the Occurrent "Hello World" snippet into a new file, `HelloWorld.java`:
 
 {% include macros/gettingStarted.md %}
 

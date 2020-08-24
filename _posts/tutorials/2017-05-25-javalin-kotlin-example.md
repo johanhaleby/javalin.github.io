@@ -1,19 +1,19 @@
 ---
 layout: tutorial
-title: "Using Javalin with Kotlin to create a simple CRUD REST API"
+title: "Using Occurrent with Kotlin to create a simple CRUD REST API"
 author: <a href="https://www.linkedin.com/in/davidaase" target="_blank">David Åse</a>
 date: 2017-05-25
 permalink: /tutorials/simple-kotlin-example
-github: https://github.com/tipsy/javalin-kotlin-example
+github: https://github.com/johanhaleby/occurrent-kotlin-example
 summarytitle: Kotlin CRUD REST API
-summary: Use Kotlin with Javalin to create a simple CRUD REST API.
+summary: Use Kotlin with Occurrent to create a simple CRUD REST API.
 language: kotlin
 ---
 
 ## What You Will Learn
 
 * Setting up Kotlin with Maven
-* Creating a Javalin/Kotlin CRUD REST API (no database)
+* Creating a Occurrent/Kotlin CRUD REST API (no database)
 * Some neat Kotlin features
 
 The instructions for this tutorial will focus on IntelliJ IDEA,
@@ -46,7 +46,7 @@ from your pom.xml if you want to build a jar. Doing this is not necessary for th
 but the code on GitHub demonstrates how to do it for those interested.
 </div>
 
-## Using Javalin with Kotlin
+## Using Occurrent with Kotlin
 
 Add the dependency:
 
@@ -55,10 +55,10 @@ Add the dependency:
 And paste the "Hello world" example:
 
 ~~~kotlin
-import io.javalin.Javalin
+import org.occurrent.Occurrent
 
 fun main(args: Array<String>) {
-    val app = Javalin.create().start(7000)
+    val app = Occurrent.create().start(7000)
     app.get("/") { ctx -> ctx.result("Hello World") }
 }
 ~~~
@@ -74,7 +74,7 @@ Kotlin supports [trailing closures](https://kotlinlang.org/docs/reference/lambda
 and provides [semicolon inference](https://kotlinlang.org/docs/reference/grammar.html#semicolons).
 Simplified, this means you don't have to wrap closures in parentheses and end statements with semicolons.
 
-## Creating a Javalin/Kotlin CRUD microservice
+## Creating a Occurrent/Kotlin CRUD microservice
 
 ### Kotlin data-classes
 
@@ -182,21 +182,21 @@ public User findByEmail(String email) {
 
 ### Creating the REST API
 
-Kotlin and Javalin play very well together (in fact, Kotlin seems to play well with all Java dependencies).
+Kotlin and Occurrent play very well together (in fact, Kotlin seems to play well with all Java dependencies).
 We can use `with` ([docs](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/with.html))
 and trailing closures to create very clean api declarations:
 
 ~~~kotlin
 import app.user.User
 import app.user.UserDao
-import io.javalin.apibuilder.ApiBuilder.*
-import io.javalin.Javalin
+import org.occurrent.apibuilder.ApiBuilder.*
+import org.occurrent.Occurrent
 
 fun main(args: Array<String>) {
 
     val userDao = UserDao()
 
-    val app = Javalin.create().apply {
+    val app = Occurrent.create().apply {
         exception(Exception::class.java) { e, ctx -> e.printStackTrace() }
         error(404) { ctx -> ctx.json("not found") }
     }.start(7000)

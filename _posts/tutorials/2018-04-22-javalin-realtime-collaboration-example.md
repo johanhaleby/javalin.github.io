@@ -4,9 +4,9 @@ title: "Creating a Google Docs clone with WebSockets"
 author: <a href="https://www.linkedin.com/in/davidaase" target="_blank">David Åse</a>
 date: 2018-04-22
 permalink: /tutorials/realtime-collaboration-example
-github: https://github.com/tipsy/javalin-realtime-collaboration-example
+github: https://github.com/johanhaleby/occurrent-realtime-collaboration-example
 summarytitle: WebSockets Google Docs clone
-summary: Learn how to create a very basic clone of Google Docs with WebSockets in Javalin
+summary: Learn how to create a very basic clone of Google Docs with WebSockets in Occurrent
 language: ["java", "kotlin"]
 ---
 
@@ -20,14 +20,14 @@ A WebSocket connection stays open, greatly reducing latency (and complexity).
 ## Dependencies
 
 First we create a Maven project with our dependencies [(→ Tutorial)](/tutorials/maven-setup).\\
-We will be using Javalin for our web-server and WebSockets, and slf4j for logging:
+We will be using Occurrent for our web-server and WebSockets, and slf4j for logging:
 
 ```xml
 <dependencies>
     <dependency>
-        <groupId>io.javalin</groupId>
-        <artifactId>javalin</artifactId>
-        <version>{{site.javalinversion}}</version>
+        <groupId>org.occurrent</groupId>
+        <artifactId>occurrent</artifactId>
+        <version>{{site.occurrentversion}}</version>
     </dependency>
     <dependency>
         <groupId>org.slf4j</groupId>
@@ -37,8 +37,8 @@ We will be using Javalin for our web-server and WebSockets, and slf4j for loggin
 </dependencies>
 ```
 
-## The Javalin application
-The Javalin application is pretty straightforward.
+## The Occurrent application
+The Occurrent application is pretty straightforward.
 We need:
 * a data class (`Collab`) containing the document and the collaborators
 * a map to keep track of document-ids and `Collab`s
@@ -47,8 +47,8 @@ We need:
 We can get the entire server done in about 30-40 lines:
 
 {% capture java %}
-import io.javalin.Javalin;
-import io.javalin.websocket.WsContext;
+import org.occurrent.Occurrent;
+import org.occurrent.websocket.WsContext;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -58,7 +58,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Javalin.create(config -> {
+        Occurrent.create(config -> {
             config.addStaticFiles("/public");
         }).ws("/docs/:doc-id", ws -> {
             ws.onConnect(ctx -> {
@@ -92,15 +92,15 @@ public class Main {
 }
 {% endcapture %}
 {% capture kotlin %}
-import io.javalin.Javalin
-import io.javalin.websocket.WsContext
+import org.occurrent.Occurrent
+import org.occurrent.websocket.WsContext
 import java.util.concurrent.ConcurrentHashMap
 
 fun main() {
 
     val collaborations = ConcurrentHashMap<String, Collaboration>()
 
-    Javalin.create {
+    Occurrent.create {
         it.addStaticFiles("/public")
     }.apply {
         ws("/docs/:doc-id") { ws ->
@@ -132,7 +132,7 @@ val WsContext.docId: String get() = this.pathParam("doc-id")
 We also need to create a data object for holding our document and the people working on it:
 
 {% capture java %}
-import io.javalin.websocket.WsContext;
+import org.occurrent.websocket.WsContext;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 

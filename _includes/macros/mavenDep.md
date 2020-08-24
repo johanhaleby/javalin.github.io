@@ -13,9 +13,9 @@
 <div data-tab="1" markdown="1">
 ~~~markup
 <dependency>
-    <groupId>io.javalin</groupId>
-    <artifactId>javalin</artifactId>
-    <version>{{site.javalinversion}}</version>
+    <groupId>org.occurrent</groupId>
+    <artifactId>occurrent</artifactId>
+    <version>{{site.occurrentversion}}</version>
 </dependency>
 ~~~
 [Not familiar with Maven? Click here for more detailed instructions.](/tutorials/maven-setup)
@@ -23,38 +23,38 @@
 
 <div data-tab="2" markdown="1">
 ~~~java
-compile 'io.javalin:javalin:{{site.javalinversion}}'
+compile 'org.occurrent:occurrent:{{site.occurrentversion}}'
 ~~~
 [Not familiar with Gradle? Click here for more detailed instructions.](/tutorials/gradle-setup)
 </div>
 
 <div data-tab="3" markdown="1">
 ~~~java
-libraryDependencies += "io.javalin" % "javalin" % "{{site.javalinversion}}"
+libraryDependencies += "org.occurrent" % "occurrent" % "{{site.occurrentversion}}"
 ~~~
 </div>
 
 <div data-tab="4" markdown="1">
 ~~~java
-@Grab(group='io.javalin', module='javalin', version='{{site.javalinversion}}') 
+@Grab(group='org.occurrent', module='occurrent', version='{{site.occurrentversion}}') 
 ~~~
 </div>
 
 <div data-tab="5" markdown="1">
 ~~~java
-[io.javalin/javalin "{{site.javalinversion}}"]
+[org.occurrent/occurrent "{{site.occurrentversion}}"]
 ~~~
 </div>
 
 <div data-tab="6" markdown="1">
 ~~~java
-'io.javalin:javalin:jar:{{site.javalinversion}}'
+'org.occurrent:occurrent:jar:{{site.occurrentversion}}'
 ~~~
 </div>
 
 <div data-tab="7" markdown="1">
 ~~~markup
-<dependency org="io.javalin" name="javalin" rev="{{site.javalinversion}}" />
+<dependency org="org.occurrent" name="occurrent" rev="{{site.occurrentversion}}" />
 ~~~
 </div>
 

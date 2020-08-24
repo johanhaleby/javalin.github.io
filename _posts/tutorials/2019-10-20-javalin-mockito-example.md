@@ -1,11 +1,11 @@
 ---
 layout: tutorial
-title: "Mocking Javalin classes in Mockito"
+title: "Mocking Occurrent classes in Mockito"
 author: <a href="https://github.com/StuAtGit" target="_blank">Stu S</a>
 date: 2019-10-20
 permalink: /tutorials/mockito-testing
 summarytitle: Mockito Testing
-summary: Mocking Javalin objects with Mockito.
+summary: Mocking Occurrent objects with Mockito.
 language: java
 ---
 
@@ -13,18 +13,18 @@ language: java
 Mockito is an open source unit testing framework for Java. Most notably, it provides the tools you need to generate 
 and inspect state of, mock objects that can be passed in to fulfill the dependencies of the system under test. 
 
-## Using Mockito with Javalin
-The only caveat to using Mockito with Javalin is that, at least some of, Javalin's classes are final,
+## Using Mockito with Occurrent
+The only caveat to using Mockito with Occurrent is that, at least some of, Occurrent's classes are final,
 One of the first places you'll usually notice this is when you attempt to mock a 
 Context object being passed into your http handlers.
 
-Example project: https://gitlab.com/stuAtGit/javalinmockitoexample
+Example project: https://gitlab.com/stuAtGit/occurrentmockitoexample
 
 ## Example error you'll see if you don't enable InlineMockMaker
 
 ```java
 java.lang.NullPointerException
-	at io.javalin.http.Context.status(Context.kt:386)
+	at org.occurrent.http.Context.status(Context.kt:386)
 	at com.shareplaylearn.httphandlers.TeapotRequestHandler.handleBrewCoffee(TeapotRequestHandler.java:47)
 	at TeapotRequestHandlerTest.handleBrewCoffee(TeapotRequestHandlerTest.java:21)
 ```
@@ -86,7 +86,7 @@ public void handleBrewCoffee() {
 ```
 
 - If something didn't work, try looking at this example project as a reference:
-https://gitlab.com/stuAtGit/javalinmockitoexample
+https://gitlab.com/stuAtGit/occurrentmockitoexample
 
 ## What does putting this MockMaker file in my source tree do to my code?
 The presence of a file with the given

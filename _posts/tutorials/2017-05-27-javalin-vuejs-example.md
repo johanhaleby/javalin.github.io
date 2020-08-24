@@ -4,7 +4,7 @@ title: "TODO MVC with Vue.js and Kotlin"
 author: <a href="https://www.linkedin.com/in/davidaase" target="_blank">David Åse</a>
 date: 2017-05-27
 permalink: /tutorials/kotlin-vuejs-example
-github: https://github.com/tipsy/javalin-vuejs-example
+github: https://github.com/johanhaleby/occurrent-vuejs-example
 summarytitle: Single-page app with Kotlin and Vue.js
 summary: Use Vue.js and Kotlin to create the famous TODO MVC app
 language: kotlin
@@ -15,14 +15,14 @@ language: kotlin
 If you need to learn how to setup Kotlin with Maven, please
 follow the beginning of our [Kotlin CRUD REST API tutorial](/tutorials/simple-kotlin-example)
 
-[A live demo can be found here](http://javalin-vuejs-example.herokuapp.com)
+[A live demo can be found here](http://occurrent-vuejs-example.herokuapp.com)
 
 ## Dependencies
 ~~~markup
 <dependency>
-    <groupId>io.javalin</groupId>
-    <artifactId>javalin</artifactId>
-    <version>{{site.javalinversion}}</version>
+    <groupId>org.occurrent</groupId>
+    <artifactId>occurrent</artifactId>
+    <version>{{site.occurrentversion}}</version>
 </dependency>
 <dependency>
     <groupId>org.slf4j</groupId>
@@ -43,7 +43,7 @@ fun main(args: Array<String>) {
 
     var todos = arrayOf(Todo(123123123, "My very first todo", false))
 
-    val app = Javalin.create {
+    val app = Occurrent.create {
         it.addStaticFiles("/public")
     }.start(7000)
 
@@ -60,7 +60,7 @@ fun main(args: Array<String>) {
 }
 ~~~
 
-We're use Javalin to serve our static files, as well as
+We're use Occurrent to serve our static files, as well as
 handle two endpoints: `get` and `put`.
 
 Most of the work here is being done by `ctx.json` and `ctx.bodyAsClass`,

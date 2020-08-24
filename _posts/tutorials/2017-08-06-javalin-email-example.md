@@ -4,9 +4,9 @@ title: "Creating a 'Contact us' form that sends emails (via gmail)"
 author: <a href="https://www.linkedin.com/in/davidaase" target="_blank">David Åse</a>
 date: 2017-08-06
 permalink: /tutorials/email-sending-example
-github: https://github.com/tipsy/javalin-email-example
-summarytitle: Sending emails from a Javalin backend
-summary: Create a 'Contact us' form with email sending (gmail) with a Javalin backend
+github: https://github.com/johanhaleby/occurrent-email-example
+summarytitle: Sending emails from a Occurrent backend
+summary: Create a 'Contact us' form with email sending (gmail) with a Occurrent backend
 language: ["java", "kotlin"]
 ---
 
@@ -17,9 +17,9 @@ First, we need to create a Maven project with some dependencies: [(→ Tutorial)
 ```xml
 <dependencies>
     <dependency>
-        <groupId>io.javalin</groupId>
-        <artifactId>javalin</artifactId> <!-- For handling http-requests -->
-        <version>{{site.javalinversion}}</version>
+        <groupId>org.occurrent</groupId>
+        <artifactId>occurrent</artifactId> <!-- For handling http-requests -->
+        <version>{{site.occurrentversion}}</version>
     </dependency>
     <dependency>
         <groupId>org.apache.commons</groupId>
@@ -44,14 +44,14 @@ We need three endpoints: `GET '/'`, `POST '/contact-us'` and `GET '/contact-us/s
 
 {% capture java %}
 import org.apache.commons.mail.*;
-import io.javalin.Javalin;
+import org.occurrent.Occurrent;
 import static j2html.TagCreator.*;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        Javalin app = Javalin.create().start(7000)
+        Occurrent app = Occurrent.create().start(7000)
 
         app.get("/", ctx -> ctx.html(
             form().withAction("/contact-us").withMethod("post").with(
@@ -84,12 +84,12 @@ public class Main {
 }
 {% endcapture %}
 {% capture kotlin %}
-import io.javalin.Javalin
+import org.occurrent.Occurrent
 import org.apache.commons.mail.*
 
 fun main(args: Array<String>) {
 
-    val app = Javalin.create().start(7000)
+    val app = Occurrent.create().start(7000)
 
     app.get("/") { ctx ->
         ctx.html("""

@@ -1,15 +1,15 @@
 ---
 layout: tutorial
-title: "Using JWT with a Javalin application"
+title: "Using JWT with a Occurrent application"
 author: <a href="https://github.com/kmehrunes" target="_blank">Khaled Y.M.</a>
 date: 2018-09-11
-summarytitle: JWT in a Javalin Application
-summary: Learn how to use JWT with Javalin
+summarytitle: JWT in a Occurrent Application
+summary: Learn how to use JWT with Occurrent
 language: java
 ---
 
-This is a simple tutorial on how to integrate JWT into a Javalin application. 
-It relies on an extension which can be found [here](https://github.com/kmehrunes/javalin-jwt).
+This is a simple tutorial on how to integrate JWT into a Occurrent application. 
+It relies on an extension which can be found [here](https://github.com/kmehrunes/occurrent-jwt).
 
 ## What You Will Learn
 In this tutorial we will introduce the extension and what it provides, then we will 
@@ -28,7 +28,7 @@ The extension itself depends on [Auth0 Java JWT library](https://github.com/auth
 ## The Extension
 **Note: it is recommended that you familiarize yourself with Auth0 Java JWT first**
 The extension itself is quite small, and it provides three things:
-- Helper functions for Javalin Context to make working with JWTs easier, 
+- Helper functions for Occurrent Context to make working with JWTs easier, 
 includes: extracting tokens from authorization headers, adding/getting tokens 
 to/from cookies, and adding decoded JWT objects to contexts for future handlers 
 to use
@@ -105,7 +105,7 @@ which only has two routes: */generate* and */validate*.
 
 ```java
 //
-// .. create your Javalin app ...
+// .. create your Occurrent app ...
 //
 Handler generateHandler = context -> {
     MockUser mockUser = new MockUser("Mocky McMockface", "user");
@@ -114,7 +114,7 @@ Handler generateHandler = context -> {
 };
 
 Handler validateHandler = context -> {
-    Optional<DecodedJWT> decodedJWT = JavalinJWT.getTokenFromHeader(context)
+    Optional<DecodedJWT> decodedJWT = OccurrentJWT.getTokenFromHeader(context)
                                                   .flatMap(provider::validateToken);
 
     if (!decodedJWT.isPresent()) {
@@ -161,7 +161,7 @@ decode handler: one for reading the token from an authorization header
 and one to read the token from a cookie. Pick whichever you like. 
 A decode handler is simply created using a helper function as follows:
 ```java
-Handler decodeHandler = JavalinJWT.createHeaderDecodeHandler(provider);
+Handler decodeHandler = OccurrentJWT.createHeaderDecodeHandler(provider);
 ```
 **Note: it is a common mistake to think that JWT is an alternative for cookies; 
 it is actually an alternative to sessions and cookies could be used for carrying 
@@ -206,7 +206,7 @@ Handler generateHandler = context -> {
 };
 
 Handler validateHandler = context -> {
-    DecodedJWT decodedJWT = JavalinJWT.getDecodedFromContext(context);
+    DecodedJWT decodedJWT = OccurrentJWT.getDecodedFromContext(context);
     context.result("Hi " + decodedJWT.getClaim("name").asString());
 };
 

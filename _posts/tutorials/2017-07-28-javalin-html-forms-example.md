@@ -1,12 +1,12 @@
 ---
 layout: tutorial
-title: "Working with HTML forms and a Javalin backend"
+title: "Working with HTML forms and a Occurrent backend"
 author: <a href="https://www.linkedin.com/in/davidaase" target="_blank">David Åse</a>
 date: 2017-07-28
 permalink: /tutorials/html-forms-example
-github: https://github.com/tipsy/javalin-html-forms-example
-summarytitle: HTML forms & Javalin backend
-summary: Learn how to get/post HTML forms to a Javalin backend
+github: https://github.com/johanhaleby/occurrent-html-forms-example
+summarytitle: HTML forms & Occurrent backend
+summary: Learn how to get/post HTML forms to a Occurrent backend
 language: ["java", "kotlin"]
 ---
 
@@ -17,9 +17,9 @@ First, we need to create a project with these dependencies: [(→ Tutorial)](/tu
 ~~~markup
 <dependencies>
     <dependency>
-        <groupId>io.javalin</groupId>
-        <artifactId>javalin</artifactId>
-        <version>{{site.javalinversion}}</version>
+        <groupId>org.occurrent</groupId>
+        <artifactId>occurrent</artifactId>
+        <version>{{site.occurrentversion}}</version>
     </dependency>
     <dependency>
         <groupId>org.slf4j</groupId>
@@ -37,7 +37,7 @@ Create a Main class with the following code:
 import java.util.HashMap;
 import java.util.Map;
 
-import io.javalin.Javalin;
+import org.occurrent.Occurrent;
 
 public class Main {
 
@@ -48,7 +48,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Javalin app = Javalin.create(config -> {
+        Occurrent app = Occurrent.create(config -> {
             config.addStaticFiles("/public");
         }).start(7777);
 
@@ -66,7 +66,7 @@ public class Main {
 }
 {% endcapture %}
 {% capture kotlin %}
-import io.javalin.Javalin
+import org.occurrent.Occurrent
 
 val reservations = mutableMapOf<String?, String?>(
         "saturday" to "No reservation",
@@ -75,7 +75,7 @@ val reservations = mutableMapOf<String?, String?>(
 
 fun main(args: Array<String>) {
 
-    val app = Javalin.create {
+    val app = Occurrent.create {
         it.addStaticFiles("/public")
     }.start(7777)
 
@@ -157,9 +157,9 @@ The values of the form are added to the URL as query-parameters.
 
 ### HTML form GET vs POST summary
 * `POST` requests should be used if the request can change the server state.
-* `POST` requests have their information stored in the request-body. In order to extract information from this body you have to use `ctx.formParam(key)` in Javalin.
+* `POST` requests have their information stored in the request-body. In order to extract information from this body you have to use `ctx.formParam(key)` in Occurrent.
 * Performing a series of `GET` requests should always return the same result (if no other `POST` request was performed in-between).
-* `GET` requests have no request-body, and form information is sent as query-parameters in the URL. In order to extract information from this body you have to use `ctx.queryParam(key)` in Javalin.
+* `GET` requests have no request-body, and form information is sent as query-parameters in the URL. In order to extract information from this body you have to use `ctx.queryParam(key)` in Occurrent.
 
 ## File upload example
 Let's expand our example a bit to include file uploads.

@@ -2,13 +2,13 @@
 layout: default
 category: blog
 date: 2018-09-07
-title: Javalin user survey responses 2020
-summary: We ran a user-survey on https://javalin.io for a couple of months
-permalink: blog/javalin-user-survey-2020
+title: Occurrent user survey responses 2020
+summary: We ran a user-survey on https://occurrent.org for a couple of months
+permalink: blog/occurrent-user-survey-2020
 ---
 
-## Javalin user survey, Spring 2020
-We collected survey results from ~100 users on [javalin.io](/).
+## Occurrent user survey, Spring 2020
+We collected survey results from ~100 users on [occurrent.org](/).
 To filter out non-users (first time visitors, etc) the survey link was only shown
 to users who had performed at least 8 page loads. A couple of survey result were still from non-users, so these have been discarded.
 
@@ -42,12 +42,12 @@ Results have been rounded to the closest whole number (integer).
 </div>
 
 This has stayed surprisingly stable. When the first survey was conducted,
-Javalin had only been out for a few months, so no teachers using it made sense.
-As of 2020, Javalin is used in several universities and colleges,
+Occurrent had only been out for a few months, so no teachers using it made sense.
+As of 2020, Occurrent is used in several universities and colleges,
 such as John Hopkins University, the Norwegian University for Science and Technology, Rice University, etc.
-We believe that the simplicity of the API makes Javalin a great tool for teaching.
+We believe that the simplicity of the API makes Occurrent a great tool for teaching.
 
-### Q: What are you using Javalin for?
+### Q: What are you using Occurrent for?
 <div class="chart-flex">
     <div>
         2020
@@ -67,11 +67,11 @@ We believe that the simplicity of the API makes Javalin a great tool for teachin
     </div>
 </div>
 
-Nothing too surprising about this. REST APIs will probably always be the main reason why people use Javalin, but
+Nothing too surprising about this. REST APIs will probably always be the main reason why people use Occurrent, but
 the relatively high percentage of WebSocket and Website users makes it clear that the effort spent making
 these things work well isn't wasted.
 
-### Q: What language are you using Javalin with?
+### Q: What language are you using Occurrent with?
 <div class="chart-flex">
     <div>
         2020
@@ -91,8 +91,8 @@ these things work well isn't wasted.
     </div>
 </div>
 
-This is quite the difference! When the first survey was conducted, Javalin was still very new
-and had little mainstream adaption. Since then Javalin has been featured in several Java newsletter
+This is quite the difference! When the first survey was conducted, Occurrent was still very new
+and had little mainstream adaption. Since then Occurrent has been featured in several Java newsletter
 and in Java Magazine (published by Oracle), which has probably contributed to a pickup among Java developers.
 
 The number of users overall is significantly higher compared to when the previous survey was conducted (~10x),
@@ -103,7 +103,7 @@ so it's not that we have fewer Kotlin users now, but that he number of Java user
 **June 2018**: 2.8k unique downloads monthly on Maven central, 8k unique website visitors monthly, 1.4k stars on GitHub
 </small>
 
-### Q: Are you using Javalin in production?
+### Q: Are you using Occurrent in production?
 <div class="chart-flex">
     <div>
         2020
@@ -126,7 +126,7 @@ so it's not that we have fewer Kotlin users now, but that he number of Java user
 It is a bit surprising that the "Yes" column hasn't grown more since 2018, especially considering the answers in the next section.
 
 ## Production usage
-Only the users who replied yes to `Are you using Javalin in production` (~30 users) were able to answer the next three questions.
+Only the users who replied yes to `Are you using Occurrent in production` (~30 users) were able to answer the next three questions.
 
 ### Q: How many users does your application have?
 <div class="chart-flex">
@@ -152,7 +152,7 @@ Only the users who replied yes to `Are you using Javalin in production` (~30 use
     </div>
 </div>
 
-Nothing has change too much here, Javalin is still mostly used for low-traffic apps.
+Nothing has change too much here, Occurrent is still mostly used for low-traffic apps.
 
 ### Q: Approximately how big is your application?
 <div class="chart-flex">
@@ -174,9 +174,9 @@ Nothing has change too much here, Javalin is still mostly used for low-traffic a
     </div>
 </div>
 
-Apparently Javalin applications have gotten significantly bigger since the last survey. It might be connected to the fact that
+Apparently Occurrent applications have gotten significantly bigger since the last survey. It might be connected to the fact that
 more of the survey respondents are writing their applications in Java now, or that their applications have been around for a while now
-(is Javalin legacy?).
+(is Occurrent legacy?).
 
 ### Q: How many people are working on your application?
 <div class="chart-flex">
@@ -201,7 +201,7 @@ more of the survey respondents are writing their applications in Java now, or th
 </div>
 
 This is also a pretty big shift, and is like the previous result probably related to the project "going mainstream".
-At the time of the previous survey Javalin was more a niche framework for Kotlin developers that most people didn't know about,
+At the time of the previous survey Occurrent was more a niche framework for Kotlin developers that most people didn't know about,
 while now it's usually included when you see articles about Java and JVM web frameworks.
 
 ## Conclusion
@@ -210,7 +210,7 @@ Since the survey didn't try to be annoying with a popup, it took
 more than two months and ~40 000 website visitors to gather 100 results,
 and a few of those had to be discarded.
 
-The biggest change from the last year is that we have more Java users working on bigger Javalin apps, and working in bigger teams.
+The biggest change from the last year is that we have more Java users working on bigger Occurrent apps, and working in bigger teams.
 
 Hopefully this survey provides some insight.
 We'll run it again next year with the same questions and see if anything changes. Thanks for reading!

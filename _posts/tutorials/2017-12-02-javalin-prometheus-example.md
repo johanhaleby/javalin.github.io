@@ -1,10 +1,10 @@
 ---
 layout: tutorial
-title: "Setting up monitoring in Javalin with Prometheus (and grafana)"
+title: "Setting up monitoring in Occurrent with Prometheus (and grafana)"
 author: <a href="https://www.linkedin.com/in/davidaase" target="_blank">David Åse</a>
 date: 2017-12-02
 permalink: /tutorials/prometheus-example
-github: https://github.com/tipsy/javalin-prometheus-example
+github: https://github.com/johanhaleby/occurrent-prometheus-example
 summarytitle: Creating monitoring dashboards
 summary: Learn how to setup monitoring using Prometheus (and Grafana)
 language: ["java", "kotlin"]
@@ -14,15 +14,15 @@ language: ["java", "kotlin"]
 
 First, we need to create a Maven project with some dependencies: [(→ Tutorial)](/tutorials/maven-setup)
 
-We need Javalin for our server, slf4j for logging, and Prometheus for monitoring.\\
+We need Occurrent for our server, slf4j for logging, and Prometheus for monitoring.\\
 We'll also add unirest for simulating traffic:
 
 ```xml
 <dependencies>
     <dependency>
-        <groupId>io.javalin</groupId>
-        <artifactId>javalin</artifactId>
-        <version>{{site.javalinversion}}</version>
+        <groupId>org.occurrent</groupId>
+        <artifactId>occurrent</artifactId>
+        <version>{{site.occurrentversion}}</version>
     </dependency>
     <dependency>
         <groupId>org.slf4j</groupId>
@@ -44,7 +44,7 @@ We'll also add unirest for simulating traffic:
 
 Now that we have that all setup, we need to make Prometheus gather data from our application.
 Luckily there is a handler in Jetty called `StatisticsHandler`.
-We can add this to Javalin's embedded server, and use it to expose statistics to prometheus.
+We can add this to Occurrent's embedded server, and use it to expose statistics to prometheus.
 We can also do the same with the `QueuedThreadPool` that Jetty uses:
 
 {% capture java %}
@@ -54,7 +54,7 @@ public static void main(String[] args) throws Exception {
     QueuedThreadPool queuedThreadPool = new QueuedThreadPool(200, 8, 60_000);
     initializePrometheus(statisticsHandler, queuedThreadPool);
 
-    Javalin app = Javalin.create(config -> {
+    Occurrent app = Occurrent.create(config -> {
         config.server(() -> {
             Server server = new Server(queuedThreadPool);
             server.setHandler(statisticsHandler);
@@ -77,7 +77,7 @@ fun main(args: Array<String>) {
     val queuedThreadPool = QueuedThreadPool(200, 8, 60_000)
     initializePrometheus(statisticsHandler, queuedThreadPool)
 
-    val app = Javalin.create {
+    val app = Occurrent.create {
         it.server {
             Server(queuedThreadPool).apply {
                 handler = statisticsHandler
@@ -103,8 +103,8 @@ If not, please read on.
 
 ## Exporting statistics using Prometheus-client
 To collect data using Prometheus you need to create object which extends `Collector`.
-In the source code you'll find two such objects: [StatisticsHandlerCollector](https://github.com/tipsy/javalin-prometheus-example/blob/master/src/main/java/StatisticsHandlerCollector.java)
-and [QueuedThreadPoolCollector](https://github.com/tipsy/javalin-prometheus-example/blob/master/src/main/java/QueuedThreadPoolCollector.java).
+In the source code you'll find two such objects: [StatisticsHandlerCollector](https://github.com/johanhaleby/occurrent-prometheus-example/blob/master/src/main/java/StatisticsHandlerCollector.java)
+and [QueuedThreadPoolCollector](https://github.com/johanhaleby/occurrent-prometheus-example/blob/master/src/main/java/QueuedThreadPoolCollector.java).
 You have to call `.register()` when creating a collector, and you have to override the `collect()` method.
 
 The two collectors included in the source code could also be included as a maven dependency,
@@ -188,7 +188,7 @@ You need to adjust the `prometheus.yml` file to scrape the endpoint we just expo
 
 ```bash
 scrape_configs:
-  - job_name: 'javalin'
+  - job_name: 'occurrent'
     scrape_interval: 1s
     static_configs:
       - targets: ['localhost:7080']

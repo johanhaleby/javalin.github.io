@@ -1,1 +1,1 @@
-curl "https://api.github.com/repos/tipsy/javalin/contributors" > contributors.json
+curl "https://api.github.com/repos/johanhaleby/occurrent/contributors" > contributors.json

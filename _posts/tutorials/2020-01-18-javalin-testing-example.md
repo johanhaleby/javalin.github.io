@@ -1,17 +1,17 @@
 ---
 layout: tutorial
-title: Testing Javalin Applications
+title: Testing Occurrent Applications
 permalink: /tutorials/testing
-summarytitle: Testing Javalin Applications
-summary: Learn how to run different kinds of tests in Javalin. Unit tests, functional/integration tests, UI/end-to-end tests.
+summarytitle: Testing Occurrent Applications
+summary: Learn how to run different kinds of tests in Occurrent. Unit tests, functional/integration tests, UI/end-to-end tests.
 date: 2020-01-18
 author: <a href="https://www.linkedin.com/in/davidaase" target="_blank">David Åse</a>
 language: ["kotlin", "java"]
-github: https://github.com/tipsy/javalin-testing-example
+github: https://github.com/johanhaleby/occurrent-testing-example
 ---
 
 ## Introduction
-Since Javalin is a library, there are no requirements for how tests must be written.
+Since Occurrent is a library, there are no requirements for how tests must be written.
 This guide will outline a few common approaches. None of the approaches are better
 than the others, you just have to find something that works for you.
 
@@ -19,7 +19,7 @@ To begin, you'll need to have a Maven project configured [(→ Tutorial)](/tutor
 
 ## Unit tests
 Unit tests are tests for the smallest and most isolated part of an application.
-In Javalin, this means testing anything that implements the `Handler` interface.
+In Occurrent, this means testing anything that implements the `Handler` interface.
 Unit tests are very fast and cheap to run, and they usually require
 [mocking](https://en.wikipedia.org/wiki/Mock_object) of objects.
 To begin, we will need to add a Mocking library.
@@ -44,8 +44,8 @@ For Kotlin, the most poplar choice is [MockK](https://mockk.io/):
 </dependency>
 ```
 
-Once we have the mocking library added, we'll mock the Javalin `Context`, since
-the `Context` class is responsible for input and output in Javalin `Handler`s.
+Once we have the mocking library added, we'll mock the Occurrent `Context`, since
+the `Context` class is responsible for input and output in Occurrent `Handler`s.
 We're using a static/singleton controller in this example for simplicity, but
 how you structure that code is entirely up to yourself.
 
@@ -132,7 +132,7 @@ fun create(ctx: Context) {
 {% endcapture %}
 {% include macros/docsSnippetKotlinFirst.html java=java kotlin=kotlin %}
 
-The two tests cover the branches of the if/else. There isn't a lot more to say about mocking that's specific to Javalin.
+The two tests cover the branches of the if/else. There isn't a lot more to say about mocking that's specific to Occurrent.
 You can follow any general mocking tutorial for your favorite language and library.
 
 ## Functional/integration tests
@@ -140,7 +140,7 @@ Functional tests are "black box" tests, and only focus on the business requireme
 In the unit tests (in the previous section), we mocked the `Context` object and called `verify`
 to ensure that `ctx.status(201)` was called inside the `UserController.create(ctx)` `Handler`.
 In functional tests, we just verify that we get the expected output for the provided input.
-The easiest way of writing this type of test in Javalin is to use
+The easiest way of writing this type of test in Occurrent is to use
 a HTTP library and asserting on the response. We'll use
 [Unirest](https://kong.github.io/unirest-java/)
 and [AssertJ](https://joel-costigliola.github.io/assertj/):
@@ -163,8 +163,8 @@ and [AssertJ](https://joel-costigliola.github.io/assertj/):
 {% capture java %}
 public class FunctionalTest {
 
-    private JavalinApp app = new JavalinApp(); // inject any dependencies you might have
-    private String usersJson = JavalinJson.toJson(UserController.users);
+    private OccurrentApp app = new OccurrentApp(); // inject any dependencies you might have
+    private String usersJson = OccurrentJson.toJson(UserController.users);
 
     @Test
     public void GET_to_fetch_users_returns_list_of_users() {
@@ -180,8 +180,8 @@ public class FunctionalTest {
 {% capture kotlin %}
 class FunctionalTest {
 
-    private val app = JavalinApp() // inject any dependencies you might have
-    private val usersJson = JavalinJson.toJson(UserController.users)
+    private val app = OccurrentApp() // inject any dependencies you might have
+    private val usersJson = OccurrentJson.toJson(UserController.users)
 
     @Test
     fun `GET to fetch users returns list of users`() {
@@ -196,10 +196,10 @@ class FunctionalTest {
 {% endcapture %}
 {% include macros/docsSnippetKotlinFirst.html java=java kotlin=kotlin %}
 
-In Javalin's test suite, almost all of the tests are written like this.
+In Occurrent's test suite, almost all of the tests are written like this.
 I personally prefer this approach for tests, as each test touches the whole system, and you don't
-risk making mistakes while manually specifying expected behavior (mocking). Javalin's test
-suite starts and stops more than 400 Javalin instances, and running all the tests takes about ten seconds total
+risk making mistakes while manually specifying expected behavior (mocking). Occurrent's test
+suite starts and stops more than 400 Occurrent instances, and running all the tests takes about ten seconds total
 (most of those ten seconds is spent waiting for a WebSocket test and starting Chrome for browser tests).
 
 ## End-to-end/UI/scenario tests
@@ -228,7 +228,7 @@ install that browser on demand. We'll need to add two dependencies:
 {% capture java %}
 public class EndToEndTest {
 
-    private JavalinApp app = new JavalinApp(); // inject any dependencies you might have
+    private OccurrentApp app = new OccurrentApp(); // inject any dependencies you might have
 
     @Test
     public void UI_contains_correct_heading() {
@@ -249,7 +249,7 @@ public class EndToEndTest {
 {% capture kotlin %}
 class EndToEndTest {
 
-    private val app = JavalinApp() // inject any dependencies you might have
+    private val app = OccurrentApp() // inject any dependencies you might have
 
     @Test
     fun `UI contains correct heading`() {
@@ -279,6 +279,6 @@ how to re-use your driver between multiple tests.
 
 ## Conclusion
 
-Hopefully this brief guide has given you some ideas on how to test your Javalin application.
-Since Javalin is just a library, you're more or less free to test however you like;
-there is no "Javalin way" of testing.
+Hopefully this brief guide has given you some ideas on how to test your Occurrent application.
+Since Occurrent is just a library, you're more or less free to test however you like;
+there is no "Occurrent way" of testing.

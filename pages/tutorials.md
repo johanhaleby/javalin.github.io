@@ -33,6 +33,6 @@ but it should be easy to follow along even if they don't.
         </ul>
 </div>
 <div class="posts-footer" markdown="1">
-The tutorials here are written by Javalin users and posted with their permission.
-If you have have a tutorial you want to submit, please create a pull request on [GitHub](https://github.com/javalin/javalin.github.io).
+The tutorials here are written by Occurrent users and posted with their permission.
+If you have have a tutorial you want to submit, please create a pull request on [GitHub](https://github.com/occurrent/occurrent.github.io).
 </div>

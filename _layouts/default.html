@@ -4,16 +4,15 @@
     {% include gtm-head.html %}
     <meta charset="utf-8">
     <link href="https://fonts.googleapis.com/css?family=Oxygen+Mono|Roboto+Slab:400,500&display=swap" rel="stylesheet">
-    <meta property="og:title" content="{% if page.title %}{{ page.title }} - {% endif %}Javalin - A lightweight Java and Kotlin web framework. Create REST APIs in Java or Kotlin easily.">
-    <meta property="og:site_name" content="Javalin">
-    <meta property="og:url" content="https://javalin.io">
+    <meta property="og:title" content="{% if page.title %}{{ page.title }} - {% endif %}Occurrent - A lightweight Java and Kotlin web framework. Create REST APIs in Java or Kotlin easily.">
+    <meta property="og:site_name" content="Occurrent">
+    <meta property="og:url" content="https://occurrent.org">
     <meta property="og:description" content="{% if page.excerpt %}{{ page.excerpt | strip_html | strip_newlines | truncate: 160 }}{% else %}{{ site.description }}{% endif %}">
-    <meta property="og:image" content="https://javalin.io/img/javalin.png">
+    <meta property="og:image" content="https://occurrent.org/img/occurrent.png">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="google-site-verification" content="liMtSlffOZROWLqoiOZdSx-luH9_Siq5-Ot6xqHZwq8">
     <title>
-        {% if page.title %}{{ page.title }} - {% endif %}Javalin - A lightweight Java and Kotlin web framework
+        {% if page.title %}{{ page.title }} - {% endif %}Occurrent - A lightweight Java and Kotlin web framework
     </title>
     <meta name="description" content="{% if page.excerpt %}{{ page.excerpt | strip_html | strip_newlines | truncate: 160 }}{% else %}{{ site.description }}{% endif %}">
     <link rel="canonical" href="{{ page.url | replace:'index.html','' | prepend: site.baseurl | prepend: site.url }}">
@@ -33,9 +32,10 @@
     {% include forkMe.html %}
     <header>
         <nav class="width-limit">
-            <a id="logo" href="/" aria-label="Javalin">
-                {% if page.splash %}<img src="/img/logo_inv.svg" alt="Javalin">{% else %}<img src="/img/logo.svg" alt="Javalin">{% endif %}
-            </a>
+<!--            <a id="logo" href="/" aria-label="Occurrent">-->
+<!--                {% if page.splash %}<img src="/img/occurrent-logo-256x98.png" alt="Occurrent">{% else %}<img src="/img/occurrent-logo-512x196.png" alt="Occurrent">{% endif %}-->
+<!--                <h1>Occurrent</h1>-->
+<!--            </a>-->
             <ul>
                 <li><a href="/download">Download</a></li>
                 <li><a href="/documentation">Docs</a></li>
@@ -48,7 +48,7 @@
         {{ content }}
     </main>
     <footer>
-        Javalin is a Java and Kotlin web framework, open sourced under the
+        Occurrent - Event Sourcing Utilities for the JVM based on the <a href="https://cloudevents.io/">CloudEvent</a> specification, open sourced under the
         <a href="https://tldrlegal.com/license/apache-license-2.0-(apache-2.0)">Apache 2</a> license
         | <a href="/about">About</a>
         | <a href="/about#contact">Contact</a>

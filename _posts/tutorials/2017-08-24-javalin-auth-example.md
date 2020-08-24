@@ -1,12 +1,12 @@
 ---
 layout: tutorial
-title: "Creating a secure REST API in Javalin"
+title: "Creating a secure REST API in Occurrent"
 author: <a href="https://www.linkedin.com/in/davidaase" target="_blank">David Åse</a>
 date: 2017-08-24
 permalink: /tutorials/auth-example
-github: https://github.com/tipsy/javalin-auth-example
+github: https://github.com/johanhaleby/occurrent-auth-example
 summarytitle: Secure your endpoints!
-summary: Learn how to secure your endpoints using Javalin's built-in AccessManager
+summary: Learn how to secure your endpoints using Occurrent's built-in AccessManager
 language: kotlin
 ---
 
@@ -17,7 +17,7 @@ First, create a new Gradle project with the following dependencies: [(→ Tutori
 ~~~java
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
-    compile "io.javalin:javalin:{{site.javalinversion}}"
+    compile "org.occurrent:occurrent:{{site.occurrentversion}}"
     compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.9"
     compile "org.slf4j:slf4j-simple:{{site.slf4jversion}}"
 }
@@ -28,7 +28,7 @@ We need something worth protecting.
 Let's pretend we have a very important API for manipulating a user database.
 We make a controller-object with some dummy data and CRUD operations:
 ```kotlin
-import io.javalin.http.Context
+import org.occurrent.http.Context
 import java.util.*
 
 object UserController {
@@ -73,7 +73,7 @@ and our application will crash. Handling this is outside the scope of the tutori
 
 ## Creating roles
 Now that we have our functionality, we need to define a set of roles for our system.
-This is done by implementing the `Role` interface from `io.javalin.security.Role`.
+This is done by implementing the `Role` interface from `org.occurrent.security.Role`.
 We'll define three roles, one for "anyone", one for permission to read user-data,
 and one for permission to write user-data.
 
@@ -85,13 +85,13 @@ enum class ApiRole : Role { ANYONE, USER_READ, USER_WRITE }
 Now that we have roles, we can implement our endpoints:
 
 ```kotlin
-import io.javalin.apibuilder.ApiBuilder.*
-import io.javalin.Javalin
-import io.javalin.core.security.Role.roles
+import org.occurrent.apibuilder.ApiBuilder.*
+import org.occurrent.Occurrent
+import org.occurrent.core.security.Role.roles
 
 fun main(vararg args: String) {
 
-    val app = Javalin.create {
+    val app = Occurrent.create {
         it.accessManager(Auth::accessManager)
     }.start()
 
@@ -119,7 +119,7 @@ Now, all that remains is to implement the access-manager (`Auth::accessManager`)
 
 ## Implementing auth
 
-The `AccessManager` interface in Javalin is pretty simple.
+The `AccessManager` interface in Occurrent is pretty simple.
 It takes a `Handler` a `Context` and a set of `Role`s.
 The idea is that you implement code to run the handler
 based on what's in the context, and what roles are set for the endpoint.
@@ -141,7 +141,7 @@ fun accessManager(handler: Handler, ctx: Context, permittedRoles: Set<Role>) {
 ```
 
 ### Extracting user-roles from the context
-There is no `ctx.userRoles` concept in Javalin, so we need to implement it.
+There is no `ctx.userRoles` concept in Occurrent, so we need to implement it.
 First we need a user-table. We'll create a `map(Pair<String, String>, Set<Role>)` where keys are
 username+password in cleartext (please don't do this for a real service), and values are user-roles:
 
@@ -169,7 +169,7 @@ When using basic auth, credentials are transferred as plain text (although base6
 </em></small>
 
 ## Conclusion
-This tutorial showed one possible way of implementing an `AccessManager` in Javalin, but
+This tutorial showed one possible way of implementing an `AccessManager` in Occurrent, but
 the interface is very flexible and you can really do whatever you want:
 ```kotlin
 app.accessManager(handler, ctx, permittedRoles) -> {

@@ -24,18 +24,18 @@ Add the dependencies:
 
 ```xml
 <dependency>
-    <groupId>io.javalin</groupId>
-    <artifactId>javalin-graphql</artifactId>
-    <version>{{site.javalinversion}}</version>
+    <groupId>org.occurrent</groupId>
+    <artifactId>occurrent-graphql</artifactId>
+    <version>{{site.occurrentversion}}</version>
 </dependency>
 ```
 
 Register the plugin:
 
 ```kotlin
-val app = Javalin.create {
+val app = Occurrent.create {
     val graphQLOption = GraphQLOptions("/graphql", ContextExample())
-            .addPackage("io.javalin.examples")
+            .addPackage("org.occurrent.examples")
             .register(QueryExample(message))
             .register(MutationExample(message))
             .register(SubscriptionExample())

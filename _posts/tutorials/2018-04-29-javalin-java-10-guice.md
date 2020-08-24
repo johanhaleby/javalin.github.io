@@ -1,37 +1,37 @@
 ---
 layout: tutorial
-title: "Javalin with Java 10 and Google Guice"
+title: "Occurrent with Java 10 and Google Guice"
 author: <a href="https://www.linkedin.com/in/kristapsvitolins/" target="_blank">Kristaps Vītoliņš</a>
 date: 2018-04-29
-permalink: /tutorials/javalin-java-10-google-guice
-github: https://github.com/alzuma/javalin-java-10-guice.git
+permalink: /tutorials/occurrent-java-10-google-guice
+github: https://github.com/alzuma/occurrent-java-10-guice.git
 summarytitle: Java 10 and Google Guice
-summary: Learn how to create Javalin application with Java 10 and Google Guice
+summary: Learn how to create Occurrent application with Java 10 and Google Guice
 language: java
 ---
 
 ## What You Will Learn
-In this tutorial we will learn how to create modular application on top of the Javalin.
+In this tutorial we will learn how to create modular application on top of the Occurrent.
 
 We will use [Google Guice](https://github.com/google/guice/wiki/Motivation) to enable modularity
 and [Java 10](http://www.oracle.com/technetwork/java/javase/downloads/jdk10-downloads-4416644.html) to do Java 10 things:
 
 ~~~java
-var amazingFramework = "Javalin"; // java10
+var amazingFramework = "Occurrent"; // java10
 // vs
-String amazingFramework = "Javalin"; // not java10
+String amazingFramework = "Occurrent"; // not java10
 ~~~
 
 ## Dependencies
 
 Lets create a Maven project with our dependencies [(→ Tutorial)](/tutorials/maven-setup).
-We will be using Javalin for our web-server, slf4j for logging, jackson to render response as JSON and Guice for dependency injection:
+We will be using Occurrent for our web-server, slf4j for logging, jackson to render response as JSON and Guice for dependency injection:
 
 ```xml
 <dependencies>
     <dependency>
-        <groupId>io.javalin</groupId>
-        <artifactId>javalin</artifactId>
+        <groupId>org.occurrent</groupId>
+        <artifactId>occurrent</artifactId>
         <version>2.8.0</version>
     </dependency>
     <dependency>
@@ -85,7 +85,7 @@ First, lets create a controller in the `io.kidbank.user` package.
 ~~~java
 package io.kidbank.user;
 
-import io.javalin.Context;
+import org.occurrent.Context;
 import io.kidbank.user.services.UserService;
 
 import javax.inject.Inject;
@@ -114,25 +114,25 @@ helps us to resolve the `UserController` from Google Guice. It guarantees that t
 package io.kidbank.user;
 
 import io.alzuma.Routing;
-import io.javalin.Javalin;
+import org.occurrent.Occurrent;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import static io.javalin.apibuilder.ApiBuilder.get;
-import static io.javalin.apibuilder.ApiBuilder.path;
+import static org.occurrent.apibuilder.ApiBuilder.get;
+import static org.occurrent.apibuilder.ApiBuilder.path;
 
 @Singleton
 class UserRouting extends Routing<UserController> {
-    private Javalin javalin;
+    private Occurrent occurrent;
     @Inject
-    public UserRouting(Javalin javalin) {
-        this.javalin = javalin;
+    public UserRouting(Occurrent occurrent) {
+        this.occurrent = occurrent;
     }
 
     @Override
     public void bindRoutes() {
-        javalin.routes(() -> {
+        occurrent.routes(() -> {
             path("api/kidbank/users", () -> {
                 get(ctx -> getController().index(ctx));
             });
@@ -146,7 +146,7 @@ Install and bind all dependencies for `io.kidbank.user` package.
 Take a look at `Multibinder`, it is a Google Guice extension. This is how we
 enable multiple routings in application. To add more routings, just add `Multibinder.newSetBinder(...)`.
 
-Later on we will inject all routes, to bind them in `Javalin` web-server.
+Later on we will inject all routes, to bind them in `Occurrent` web-server.
 
 ~~~java
 package io.kidbank.user;
@@ -168,13 +168,13 @@ public class UserModule extends AbstractModule {
 }
 ~~~
 
-Bind `Javalin` with routes and start the web-server. This isn't a black magic, just injection, keep that in mind.
+Bind `Occurrent` with routes and start the web-server. This isn't a black magic, just injection, keep that in mind.
 
 Take a closer look at `private Set<Routing> routes`. This is where Google Guice injects all `Routes` which were
 bound by `Multibinder`.
 
 Remeber, we were talking about `Routing` class and the guarantees it provides. Based on that, we can call the method `bindRoutes()`
-on each record in `Set<Routing>`. And poof, we fill `Javalin` with routes.
+on each record in `Set<Routing>`. And poof, we fill `Occurrent` with routes.
 
 ~~~java
 package io.kidbank;
@@ -182,7 +182,7 @@ package io.kidbank;
 import com.google.inject.Inject;
 import io.alzuma.AppEntrypoint;
 import io.alzuma.Routing;
-import io.javalin.Javalin;
+import org.occurrent.Occurrent;
 
 import javax.inject.Singleton;
 import java.util.Collections;
@@ -190,13 +190,13 @@ import java.util.Set;
 
 @Singleton
 class WebEntrypoint implements AppEntrypoint {
-    private Javalin app;
+    private Occurrent app;
 
     @Inject(optional = true)
     private Set<Routing> routes = Collections.emptySet();
 
     @Inject
-    public WebEntrypoint(Javalin app) {
+    public WebEntrypoint(Occurrent app) {
         this.app = app;
     }
 
@@ -224,24 +224,24 @@ import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.MapBinder;
 import io.alzuma.AppEntrypoint;
 import io.alzuma.EntrypointType;
-import io.javalin.Javalin;
+import org.occurrent.Occurrent;
 import org.jetbrains.annotations.NotNull;
 
 class WebModule extends AbstractModule {
-    private Javalin app;
+    private Occurrent app;
 
-    private WebModule(Javalin app) {
+    private WebModule(Occurrent app) {
         this.app = app;
     }
 
     @NotNull
     public static WebModule create() {
-        return new WebModule(Javalin.create());
+        return new WebModule(Occurrent.create());
     }
 
     @Override
     protected void configure() {
-        bind(Javalin.class).toInstance(app);
+        bind(Occurrent.class).toInstance(app);
         MapBinder.newMapBinder(binder(), EntrypointType.class, AppEntrypoint.class).addBinding(EntrypointType.REST).to(WebEntrypoint.class);
     }
 }
@@ -289,7 +289,7 @@ public class AppModule extends AbstractModule {
 Now we are ready to start our web-server.
 
 Create injector from `AppModule` which will trigger all the bindings and installations down the path.
-Resolve `Startup` and boot the REST with Javalin.
+Resolve `Startup` and boot the REST with Occurrent.
 
 ~~~java
 public class App {

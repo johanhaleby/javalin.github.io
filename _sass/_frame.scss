@@ -17,7 +17,7 @@ header {
   top: 0;
   left: 0;
   border-bottom: 1px solid $light-border;
-  border-top: 4px solid $javalin-brand-primary;
+  border-top: 4px solid $occurrent-brand-primary;
 }
 
 main {
@@ -97,13 +97,13 @@ nav {
   }
 }
 
-.right-menu {
+.left-menu {
   font-family: Arial, sans-serif;
   position: fixed;
-  left: 50%;
+  right: 50%;
   list-style: none;
   padding: 0;
-  margin-left: 450px;
+  margin-right: 450px;
   top: 120px;
   z-index: 999999;
   width: 200px;
@@ -148,13 +148,13 @@ nav {
 }
 
 @media (max-height: 850px) {
-  .right-menu {
+  .left-menu {
     font-size: 14px;
   }
 }
 
 @media (max-height: 750px) {
-  .right-menu {
+  .left-menu {
     ul a {
       margin: 0;
     }
@@ -162,7 +162,7 @@ nav {
 }
 
 @media (max-height: 650px) {
-  .right-menu {
+  .left-menu {
     font-size: 12px;
   }
 }
@@ -178,12 +178,12 @@ nav {
   nav.width-limit {
     max-width: 100%;
   }
-  .has-right-menu {
+  .has-left-menu {
     &.width-limit {
-      padding-right: 220px;
+      padding-left: 220px;
     }
   }
-  .right-menu {
+  .left-menu {
     top: 80px;
     right: 0;
     left: auto;
@@ -197,7 +197,7 @@ nav {
 }
 
 @media (max-width: 700px) {
-  .right-menu {
+  .left-menu {
     display: none;
   }
 }

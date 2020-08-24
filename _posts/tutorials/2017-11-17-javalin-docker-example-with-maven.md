@@ -1,12 +1,12 @@
 ---
 layout: tutorial
-title: "Deploying Javalin on Docker Container with Maven"
+title: "Deploying Occurrent on Docker Container with Maven"
 author: <a href="https://www.linkedin.com/in/prasad-marne-7bb85b100/" target="_blank">Prasad Marne</a>
 date: 2017-11-17
 permalink: /tutorials/docker
-github: https://github.com/prasad-marne/javalin-docker
+github: https://github.com/prasad-marne/occurrent-docker
 summarytitle: Deploying to Docker Container with Maven
-summary: Deploy a Javalin Hello World application on Docker Container!
+summary: Deploy a Occurrent Hello World application on Docker Container!
 language: java
 ---
 
@@ -33,13 +33,13 @@ Before we get started, there are a few things we need to do:
 * Set up Docker [(Install Docker)](https://docs.docker.com/engine/installation/)
 * Deploy Registry server [(Deploy Registry)](https://docs.docker.com/registry/deploying/)
 * Install [Maven](https://maven.apache.org/guides/getting-started/maven-in-five-minutes.html)
-* Set up the Javalin Hello World example with Maven [(→ Tutorial)](/tutorials/maven-setup)
+* Set up the Occurrent Hello World example with Maven [(→ Tutorial)](/tutorials/maven-setup)
 
 ## Configuring Maven
 This is actually where most of the work is done. In order to easily
 deploy a Java application anywhere, you have to create a jar file
 containing your application and all of its dependencies.
-Open the pom.xml of your Javalin Maven project and add the
+Open the pom.xml of your Occurrent Maven project and add the
 following configuration (below your dependencies tag):
 
 ~~~markup
@@ -98,13 +98,13 @@ Copy below contents to the Dockerfile and move this file to root of your project
 FROM openjdk:8-jre-alpine
 
 EXPOSE 7000
-ENTRYPOINT ["/usr/bin/java", "-jar", "/usr/share/javalin/my-javalin.jar"]
+ENTRYPOINT ["/usr/bin/java", "-jar", "/usr/share/occurrent/my-occurrent.jar"]
 
 ARG JAR_FILE
-ADD target/${JAR_FILE} /usr/share/javalin/my-javalin.jar
+ADD target/${JAR_FILE} /usr/share/occurrent/my-occurrent.jar
 ~~~
 When you've added the Dockerfile to your project,
-it should look like [this](https://github.com/prasad-marne/javalin-docker/blob/master/Dockerfile)
+it should look like [this](https://github.com/prasad-marne/occurrent-docker/blob/master/Dockerfile)
 
 To build a docker image for your application we will use dockerfile-maven-plugin
  [(dockerfile-maven-plugin)](https://github.com/spotify/dockerfile-maven).
@@ -125,7 +125,7 @@ To build a docker image for your application we will use dockerfile-maven-plugin
         </execution>
     </executions>
     <configuration>
-        <repository>localhost:5000/javalin</repository>
+        <repository>localhost:5000/occurrent</repository>
         <tag>${project.version}</tag>
         <buildArgs>
             <JAR_FILE>${project.build.finalName}-shaded.jar</JAR_FILE>
@@ -134,19 +134,19 @@ To build a docker image for your application we will use dockerfile-maven-plugin
 </plugin>
 ~~~
 When you've added the Docker config to your pom,
-it should look like [this](https://github.com/prasad-marne/javalin-docker/blob/master/pom.xml)
+it should look like [this](https://github.com/prasad-marne/occurrent-docker/blob/master/pom.xml)
 
-## Making Javalin Listen on the Correct Port
-The only thing left is making sure Javalin can handle your requests.
+## Making Occurrent Listen on the Correct Port
+The only thing left is making sure Occurrent can handle your requests.
 We have exposed port 7000 in Dockerfile. That means that 7000 port on the container is accessible to the outside world.
-So we will configure Javalin to listen on "7000"
+So we will configure Occurrent to listen on "7000"
 ~~~java
-import io.javalin.Javalin;
+import org.occurrent.Occurrent;
 
 public class HelloWorld {
 
     public static void main(String[] args) {
-        Javalin app = Javalin.create().start(7000);
+        Occurrent app = Occurrent.create().start(7000);
         app.get("/", ctx -> ctx.result("Hello World"));
     }
 
@@ -157,7 +157,7 @@ Now we can deploy our application using `mvn deploy`.
 This will build the docker image and push it to your registry server.
 Image name is same as repository value in the pom. 
 Additionally we add a tag to image to specify images for different versions.
-So image name for this example is localhost:5000/javalin:1.0.0-SNAPSHOT.
+So image name for this example is localhost:5000/occurrent:1.0.0-SNAPSHOT.
 Again, make sure you're in your project root, then enter:
 ~~~bash
 mvn deploy
@@ -167,7 +167,7 @@ mvn deploy
 Now we can run our application using `docker run`.
 open terminal then enter:
 ~~~bash
-docker run -d -p 7000:7000 localhost:5000/javalin:1.0.0-SNAPSHOT
+docker run -d -p 7000:7000 localhost:5000/occurrent:1.0.0-SNAPSHOT
 ~~~
 
 That's it. Our application is now available at http://localhost:7000/

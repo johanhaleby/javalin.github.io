@@ -1,12 +1,12 @@
 ---
 layout: tutorial
-title: "Deploying Javalin on Heroku"
+title: "Deploying Occurrent on Heroku"
 author: <a href="https://www.linkedin.com/in/davidaase" target="_blank">David Åse</a>
 date: 2017-05-25
 permalink: /tutorials/heroku
-github: https://github.com/tipsy/javalin-heroku-example
+github: https://github.com/johanhaleby/occurrent-heroku-example
 summarytitle: Deploying to Heroku
-summary: Deploy a Javalin Hello World application on Heroku!
+summary: Deploy a Occurrent Hello World application on Heroku!
 language: java
 ---
 
@@ -31,13 +31,13 @@ Before we get started, there are a few things we need to do:
 * Create a free Heroku account [(sign up)](https://signup.heroku.com/dc)
 * Install [Heroku Toolbelt](https://toolbelt.heroku.com/)
 * Install [Maven](https://maven.apache.org/guides/getting-started/maven-in-five-minutes.html)
-* Set up the Javalin Hello World example with Maven [(→ Tutorial)](/tutorials/maven-setup)
+* Set up the Occurrent Hello World example with Maven [(→ Tutorial)](/tutorials/maven-setup)
 
 ## Configuring Maven
 This is actually where most of the work is done. In order to easily
 deploy a Java application anywhere, you have to create a jar file
 containing your application and all of its dependencies.
-Open the pom.xml of your Javalin Maven project and add the
+Open the pom.xml of your Occurrent Maven project and add the
 following configuration (below your dependencies tag):
 
 ~~~markup
@@ -84,7 +84,7 @@ Heroku application. This can be done by using the `heroku create` command.\\
 Open a terminal and navigate to your project root, then enter:
 
 ~~~bash
-heroku create javalin-heroku-example #choose your own application name 
+heroku create occurrent-heroku-example #choose your own application name 
 ~~~
 
 Now that you have a Heroku application, we have to configure how to
@@ -98,29 +98,29 @@ We specify the JDK version and the app-name, along with the launch config:
     <version>1.1.3</version>
     <configuration>
         <jdkVersion>1.8</jdkVersion>
-        <appName>javalin-heroku-example</appName>
+        <appName>occurrent-heroku-example</appName>
         <processTypes>
             <!-- Tell Heroku how to launch your application -->
-            <web>java -jar ./target/javalin-heroku-example-1.0-jar-with-dependencies.jar</web>
+            <web>java -jar ./target/occurrent-heroku-example-1.0-jar-with-dependencies.jar</web>
         </processTypes>
     </configuration>
 </plugin>
 ~~~
 When you've added the Heroku config to your pom,
-it should look like [this](https://github.com/tipsy/javalin-heroku-example/blob/master/pom.xml)
+it should look like [this](https://github.com/johanhaleby/occurrent-heroku-example/blob/master/pom.xml)
 
-## Making Javalin Listen on the Correct Port
-The only thing left is making sure Javalin can handle your requests.
+## Making Occurrent Listen on the Correct Port
+The only thing left is making sure Occurrent can handle your requests.
 Heroku assigns your application a new port every time you deploy it,
-so we have to get this port and tell Javalin to use it:
+so we have to get this port and tell Occurrent to use it:
 
 ~~~java
-import io.javalin.Javalin;
+import org.occurrent.Occurrent;
 
 public class Main {
 
   public static void main(String[] args) {
-    Javalin app = Javalin.create()
+    Occurrent app = Occurrent.create()
         .start(getHerokuAssignedPort())
         .get("/", ctx -> ctx.result("Hello Heroku"));
   }

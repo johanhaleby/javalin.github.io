@@ -4,28 +4,28 @@ title: "Creating a library website with login and multiple languages"
 author: <a href="https://www.linkedin.com/in/davidaase" target="_blank">David Åse</a>
 date: 2017-05-26
 permalink: /tutorials/website-example
-github: https://github.com/tipsy/javalin-website-example
+github: https://github.com/johanhaleby/occurrent-website-example
 summarytitle: Basic website structure
-summary: Create a basic website in Javalin with controllers, authentication, localization, etc.
+summary: Create a basic website in Occurrent with controllers, authentication, localization, etc.
 language: java
 ---
 
 <div class="notification" style="border:2px solid #dd2222;font-size:18px;">
 This tutorial is pretty old, please check out
-<a href="/tutorials/simple-frontends-with-javalin-and-vue">/tutorials/simple-frontends-with-javalin-and-vue</a>
+<a href="/tutorials/simple-frontends-with-occurrent-and-vue">/tutorials/simple-frontends-with-occurrent-and-vue</a>
 for a more modern approach.
 </div>
 
 ## What You Will Learn
 
-You will learn how to create a basic Javalin application with filters,
+You will learn how to create a basic Occurrent application with filters,
 controllers, views, authentication, localization, error handling, and more.
 However, this is not really a full blown tutorial, it's more a description of a
 basic structure, with certain points of the code highlighted. To get the full
 benefit of this tutorial, please clone the example on
-[GitHub](https://github.com/tipsy/javalin-website-example) run it, and play around.
+[GitHub](https://github.com/johanhaleby/occurrent-website-example) run it, and play around.
 
-[A live demo can be found here](http://javalin-website-example.herokuapp.com/index)
+[A live demo can be found here](http://occurrent-website-example.herokuapp.com/index)
 
 ## Package structure
 <img src="/img/posts/websiteExample/packageOverview.png" alt="Package Structure">
@@ -54,7 +54,7 @@ public class Application {
         bookDao = new BookDao();
         userDao = new UserDao();
 
-        Javalin app = Javalin.create()
+        Occurrent app = Occurrent.create()
             .enableStaticFiles("/public")
             .start(7000);
 
@@ -167,7 +167,7 @@ The setup is a bit more elaborate if you clone the application
 but the basics are very simple, and only uses native Java.
 
 ## Rendering views
-Javalin has native support on the `Context` object for rendering templates.
+Occurrent has native support on the `Context` object for rendering templates.
 Let's look at the login-page again:
 
 ~~~java
@@ -202,5 +202,5 @@ book was not found by using the `msg` object that was put into the model earlier
 The view uses a layout template `@#mainLayout()` which is the page frame (styles, scripts, navigation, footer, etc.).
 
 ## Conclusion
-Hopefully you've learned a bit about Javalin, and also Java and webapps in general.
+Hopefully you've learned a bit about Occurrent, and also Java and webapps in general.
 Please clone the example and suggest improvements on GitHub.

@@ -1,12 +1,12 @@
 ---
 layout: tutorial
-title: "Running Javalin on GraalVM (22MB total size)"
+title: "Running Occurrent on GraalVM (22MB total size)"
 author: <a href="https://github.com/birdayz" target="_blank">Johannes Brüderl</a>
-github: https://github.com/tipsy/graal-javalin
+github: https://github.com/johanhaleby/graal-occurrent
 notice: This tutorial originally appeared on <a href="https://nerden.de/posts/microservice_graalvm/">https://nerden.de</a> and was republished with the authors permission.
 date: 2018-09-27
 summarytitle: Running on GraalVM (22MB total size)
-summary: Building a 22 Megabytes Microservice with Docker, Java, Javalin and GraalVM
+summary: Building a 22 Megabytes Microservice with Docker, Java, Occurrent and GraalVM
 language: java
 ---
 
@@ -34,7 +34,7 @@ if (someVariable) {
 ```
 
 
-Since the value of someVariable is not known at compile time, the compiler can not know whether to include “SomeClazz”. Not to mention that it’s just a string, and the compiler has to search for this class on the classpath at compile time. If the compiler decides to include this class, it will just do that and throw an error if the class is not found. That’s nice. However, this is only best-effort. There is no guarantee that all required classes are included at compile time - which means that classes may be missing, and runtime errors are thrown when they are being instantiated. There are many more limitations, for a full reference head over to GraalVM’s [documentation](https://github.com/oracle/graal/blob/master/substratevm/LIMITATIONS.md). As a proof of concept, I was looking for a rest library without excess usage of reflect. Obviously it’s not spring boot - I chose [javalin.io](https://javalin.io). It’s just a rest library on top of Jetty, that’s it.
+Since the value of someVariable is not known at compile time, the compiler can not know whether to include “SomeClazz”. Not to mention that it’s just a string, and the compiler has to search for this class on the classpath at compile time. If the compiler decides to include this class, it will just do that and throw an error if the class is not found. That’s nice. However, this is only best-effort. There is no guarantee that all required classes are included at compile time - which means that classes may be missing, and runtime errors are thrown when they are being instantiated. There are many more limitations, for a full reference head over to GraalVM’s [documentation](https://github.com/oracle/graal/blob/master/substratevm/LIMITATIONS.md). As a proof of concept, I was looking for a rest library without excess usage of reflect. Obviously it’s not spring boot - I chose [occurrent.org](https://occurrent.org). It’s just a rest library on top of Jetty, that’s it.
 
 Getting started
 ===============
@@ -54,16 +54,16 @@ public class Main {
     public static void main(String[] args) {
         Test t = new Test();
         t.setSomeValue("Hello World!");
-        Javalin app = Javalin.create().start(7000);
+        Occurrent app = Occurrent.create().start(7000);
         app.get("/", ctx -> ctx.json(t));
     }
 }
 ```
 
-In addition, we must not forget to declare the necessary dependencies. We must include Jackson, as it will be loaded at runtime (d’uh). The same case for a SLF4J binding, Javalin recommends to use slf4j-simple.
+In addition, we must not forget to declare the necessary dependencies. We must include Jackson, as it will be loaded at runtime (d’uh). The same case for a SLF4J binding, Occurrent recommends to use slf4j-simple.
 
 ```java
-compile group: 'io.javalin', name: 'javalin', version: '2.2.0'
+compile group: 'org.occurrent', name: 'occurrent', version: '2.2.0'
 compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.6'
 compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
 compile group: 'org.graalvm', name: 'graal-sdk', version: '1.0.0-rc6'
@@ -87,17 +87,17 @@ task fatJar(type: Jar) {
 Nothing very special so far. To build the native application executable, GraalVM provides the tool `native-image`. Let’s try it out:
 
 ```text
-j0e@thinkpad  ~/projects/graal-javalin  master ● ? ⍟1  native-image -jar ./build/libs/graal-javalin-all-1.0-SNAPSHOT.jar
+j0e@thinkpad  ~/projects/graal-occurrent  master ● ? ⍟1  native-image -jar ./build/libs/graal-occurrent-all-1.0-SNAPSHOT.jar
 Build on Server(pid: 28578, port: 34643)*
-[graal-javalin-all-1.0-SNAPSHOT:28578]    classlist:   2,977.05 ms
-[graal-javalin-all-1.0-SNAPSHOT:28578]        (cap):     963.06 ms
-[graal-javalin-all-1.0-SNAPSHOT:28578]        setup:   1,663.57 ms
+[graal-occurrent-all-1.0-SNAPSHOT:28578]    classlist:   2,977.05 ms
+[graal-occurrent-all-1.0-SNAPSHOT:28578]        (cap):     963.06 ms
+[graal-occurrent-all-1.0-SNAPSHOT:28578]        setup:   1,663.57 ms
 [ForkJoinPool-3-worker-3] INFO org.eclipse.jetty.util.log - Logging initialized @5682ms to org.eclipse.jetty.util.log.Slf4jLog
-[graal-javalin-all-1.0-SNAPSHOT:28578]   (typeflow):  10,510.28 ms
-[graal-javalin-all-1.0-SNAPSHOT:28578]    (objects):   6,598.95 ms
-[graal-javalin-all-1.0-SNAPSHOT:28578]   (features):     110.60 ms
-[graal-javalin-all-1.0-SNAPSHOT:28578]     analysis:  17,612.10 ms
-[graal-javalin-all-1.0-SNAPSHOT:28578]     universe:     859.27 ms
+[graal-occurrent-all-1.0-SNAPSHOT:28578]   (typeflow):  10,510.28 ms
+[graal-occurrent-all-1.0-SNAPSHOT:28578]    (objects):   6,598.95 ms
+[graal-occurrent-all-1.0-SNAPSHOT:28578]   (features):     110.60 ms
+[graal-occurrent-all-1.0-SNAPSHOT:28578]     analysis:  17,612.10 ms
+[graal-occurrent-all-1.0-SNAPSHOT:28578]     universe:     859.27 ms
 error: unsupported features in 8 methods
 Detailed message:
 Error: Unsupported method sun.nio.ch.InheritedChannel.soType0(int) is reachable: Native method. If you intend to use the Java Native Interface (JNI), specify -H:+JNI and see also -H:JNIConfigurationFiles=<path> (use -H:+PrintFlags for details)
@@ -109,31 +109,31 @@ To diagnose the issue, you can add the option --report-unsupported-elements-at-r
 Okay, we need the flag -H:+JNI. That one is quite easy, just add the flag to the command and this problem is solved:
 
 ```text
- j0e@thinkpad  ~/projects/graal-javalin  master ● ? ⍟1  native-image -jar ./build/libs/graal-javalin-all-1.0-SNAPSHOT.jar -H:+JNI
+ j0e@thinkpad  ~/projects/graal-occurrent  master ● ? ⍟1  native-image -jar ./build/libs/graal-occurrent-all-1.0-SNAPSHOT.jar -H:+JNI
 Build on Server(pid: 28578, port: 34643)
-[graal-javalin-all-1.0-SNAPSHOT:28578]    classlist:     753.67 ms
-[graal-javalin-all-1.0-SNAPSHOT:28578]        (cap):     528.63 ms
-[graal-javalin-all-1.0-SNAPSHOT:28578]        setup:     776.76 ms
+[graal-occurrent-all-1.0-SNAPSHOT:28578]    classlist:     753.67 ms
+[graal-occurrent-all-1.0-SNAPSHOT:28578]        (cap):     528.63 ms
+[graal-occurrent-all-1.0-SNAPSHOT:28578]        setup:     776.76 ms
 [ForkJoinPool-15-worker-0] INFO org.eclipse.jetty.util.log - Logging initialized @616692ms to org.eclipse.jetty.util.log.Slf4jLog
-[graal-javalin-all-1.0-SNAPSHOT:28578]   (typeflow):   5,934.19 ms
-[graal-javalin-all-1.0-SNAPSHOT:28578]    (objects):   6,646.13 ms
-[graal-javalin-all-1.0-SNAPSHOT:28578]   (features):      83.06 ms
-[graal-javalin-all-1.0-SNAPSHOT:28578]     analysis:  13,491.56 ms
-[graal-javalin-all-1.0-SNAPSHOT:28578]     universe:     519.25 ms
-[graal-javalin-all-1.0-SNAPSHOT:28578]      (parse):   2,360.81 ms
-[graal-javalin-all-1.0-SNAPSHOT:28578]     (inline):   3,674.24 ms
-[graal-javalin-all-1.0-SNAPSHOT:28578]    (compile):  15,925.13 ms
-[graal-javalin-all-1.0-SNAPSHOT:28578]      compile:  22,729.43 ms
-[graal-javalin-all-1.0-SNAPSHOT:28578]        image:   1,426.49 ms
-[graal-javalin-all-1.0-SNAPSHOT:28578]        write:     280.71 ms
-[graal-javalin-all-1.0-SNAPSHOT:28578]      [total]:  40,064.13 ms
+[graal-occurrent-all-1.0-SNAPSHOT:28578]   (typeflow):   5,934.19 ms
+[graal-occurrent-all-1.0-SNAPSHOT:28578]    (objects):   6,646.13 ms
+[graal-occurrent-all-1.0-SNAPSHOT:28578]   (features):      83.06 ms
+[graal-occurrent-all-1.0-SNAPSHOT:28578]     analysis:  13,491.56 ms
+[graal-occurrent-all-1.0-SNAPSHOT:28578]     universe:     519.25 ms
+[graal-occurrent-all-1.0-SNAPSHOT:28578]      (parse):   2,360.81 ms
+[graal-occurrent-all-1.0-SNAPSHOT:28578]     (inline):   3,674.24 ms
+[graal-occurrent-all-1.0-SNAPSHOT:28578]    (compile):  15,925.13 ms
+[graal-occurrent-all-1.0-SNAPSHOT:28578]      compile:  22,729.43 ms
+[graal-occurrent-all-1.0-SNAPSHOT:28578]        image:   1,426.49 ms
+[graal-occurrent-all-1.0-SNAPSHOT:28578]        write:     280.71 ms
+[graal-occurrent-all-1.0-SNAPSHOT:28578]      [total]:  40,064.13 ms
 ```
 
 So compilation was apparently successful. The ugliness starts when we run it:
 
 ```text
- j0e@thinkpad  ~/projects/graal-javalin  master ● ? ⍟1  ./graal-javalin-all-1.0-SNAPSHOT                          ✔  33695  00:53:54
-[main] INFO io.javalin.Javalin -
+ j0e@thinkpad  ~/projects/graal-occurrent  master ● ? ⍟1  ./graal-occurrent-all-1.0-SNAPSHOT                          ✔  33695  00:53:54
+[main] INFO org.occurrent.Occurrent -
  _________________________________________
 |        _                  _ _           |
 |       | | __ ___   ____ _| (_)_ __      |
@@ -142,7 +142,7 @@ So compilation was apparently successful. The ugliness starts when we run it:
 |    \___/ \__,_| \_/ \__,_|_|_|_| |_|    |
 |_________________________________________|
 |                                         |
-|    https://javalin.io/documentation     |
+|    https://occurrent.org/documentation     |
 |_________________________________________|
 -------------------------------------------------------------------
 Missing dependency 'Slf4j simple'. Add the dependency.
@@ -157,9 +157,9 @@ pom.xml:
 build.gradle:
 compile "org.slf4j:slf4j-simple:1.7.25"
 -------------------------------------------------------------------
-Visit https://javalin.io/documentation#logging if you need more help
-[main] INFO io.javalin.Javalin - Starting Javalin ...
-[main] ERROR io.javalin.Javalin - Failed to start Javalin
+Visit https://occurrent.org/documentation#logging if you need more help
+[main] INFO org.occurrent.Occurrent - Starting Occurrent ...
+[main] ERROR org.occurrent.Occurrent - Failed to start Occurrent
 java.lang.IllegalArgumentException: Class org.eclipse.jetty.servlet.ServletMapping[] is instantiated reflectively but was never registered. Register the class by using org.graalvm.nativeimage.RuntimeReflection
         at java.lang.Throwable.<init>(Throwable.java:265)
         at java.lang.Exception.<init>(Exception.java:66)
@@ -169,9 +169,9 @@ java.lang.IllegalArgumentException: Class org.eclipse.jetty.servlet.ServletMappi
         at org.eclipse.jetty.util.ArrayUtil.addToArray(ArrayUtil.java:91)
         at org.eclipse.jetty.servlet.ServletHandler.addServletWithMapping(ServletHandler.java:907)
         at org.eclipse.jetty.servlet.ServletContextHandler.addServlet(ServletContextHandler.java:462)
-        at io.javalin.core.util.JettyServerUtil.initialize(JettyServerUtil.kt:71)
-        at io.javalin.Javalin.start(Javalin.java:136)
-        at io.javalin.Javalin.start(Javalin.java:103)
+        at org.occurrent.core.util.JettyServerUtil.initialize(JettyServerUtil.kt:71)
+        at org.occurrent.Occurrent.start(Occurrent.java:136)
+        at org.occurrent.Occurrent.start(Occurrent.java:103)
         at de.nerden.samples.graal.Main.main(Main.java:10)
         at com.oracle.svm.core.JavaMainWrapper.run(JavaMainWrapper.java:163)
 ```
@@ -216,7 +216,7 @@ To fix this issue, we have to tell GraalVM that the class ServletMapping has to 
 Note the special notation `[Lorg.eclipse.jetty.servlet.ServletMapping;`. This is necessary because in this case, an array of ServletMapping objects is being reflectively instantiated. In addition, i’ve added slf4j and Jackson classes, so they are found at runtime. In both cases, runtime errors are thrown because reflection didn’t work. Also, we have to add our own classes to the reflection list. If we don’t do this, the following cryptic exception will be thrown when performing a request:
 
 ```text
-[qtp1024494636-165] WARN io.javalin.core.ExceptionMapper - Uncaught exception
+[qtp1024494636-165] WARN org.occurrent.core.ExceptionMapper - Uncaught exception
 com.fasterxml.jackson.databind.exc.InvalidDefinitionException: No serializer found for class de.nerden.samples.graal.Test and no properties discovered to create BeanSerializer (to avoid exception, disable SerializationFeature.FAIL_ON_EMPTY_BEANS)
         at java.lang.Throwable.<init>(Throwable.java:265)
         at java.lang.Exception.<init>(Exception.java:66)
@@ -233,22 +233,22 @@ com.fasterxml.jackson.databind.exc.InvalidDefinitionException: No serializer fou
         at com.fasterxml.jackson.databind.ser.DefaultSerializerProvider.serializeValue(DefaultSerializerProvider.java:319)
         at com.fasterxml.jackson.databind.ObjectMapper._configAndWriteValue(ObjectMapper.java:3905)
         at com.fasterxml.jackson.databind.ObjectMapper.writeValueAsString(ObjectMapper.java:3219)
-        at io.javalin.json.JavalinJackson.toJson(JavalinJackson.kt:26)
-        at io.javalin.json.JavalinJson$toJsonMapper$1.map(JavalinJson.kt:28)
-        at io.javalin.json.JavalinJson.toJson(JavalinJson.kt:32)
-        at io.javalin.Context.json(Context.kt:510)
+        at org.occurrent.json.OccurrentJackson.toJson(OccurrentJackson.kt:26)
+        at org.occurrent.json.OccurrentJson$toJsonMapper$1.map(OccurrentJson.kt:28)
+        at org.occurrent.json.OccurrentJson.toJson(OccurrentJson.kt:32)
+        at org.occurrent.Context.json(Context.kt:510)
         at de.nerden.samples.graal.Main.lambda$main$0(Main.java:11)
         at de.nerden.samples.graal.Main$$Lambda$925/1179449634.handle(Unknown Source)
-        at io.javalin.security.SecurityUtil.noopAccessManager(SecurityUtil.kt:22)
-        at io.javalin.Javalin$$Lambda$928/1713301975.manage(Unknown Source)
-        at io.javalin.Javalin.lambda$addHandler$0(Javalin.java:485)
-        at io.javalin.Javalin$$Lambda$931/1107122283.handle(Unknown Source)
-        at io.javalin.core.JavalinServlet$service$2$1.invoke(JavalinServlet.kt:48)
-        at io.javalin.core.JavalinServlet$service$2$1.invoke(JavalinServlet.kt:20)
-        at io.javalin.core.JavalinServlet$service$1.invoke(JavalinServlet.kt:145)
-        at io.javalin.core.JavalinServlet$service$2.invoke(JavalinServlet.kt:43)
-        at io.javalin.core.JavalinServlet.service(JavalinServlet.kt:109)
-        at io.javalin.core.util.JettyServerUtil$initialize$httpHandler$1.doHandle(JettyServerUtil.kt:59)
+        at org.occurrent.security.SecurityUtil.noopAccessManager(SecurityUtil.kt:22)
+        at org.occurrent.Occurrent$$Lambda$928/1713301975.manage(Unknown Source)
+        at org.occurrent.Occurrent.lambda$addHandler$0(Occurrent.java:485)
+        at org.occurrent.Occurrent$$Lambda$931/1107122283.handle(Unknown Source)
+        at org.occurrent.core.OccurrentServlet$service$2$1.invoke(OccurrentServlet.kt:48)
+        at org.occurrent.core.OccurrentServlet$service$2$1.invoke(OccurrentServlet.kt:20)
+        at org.occurrent.core.OccurrentServlet$service$1.invoke(OccurrentServlet.kt:145)
+        at org.occurrent.core.OccurrentServlet$service$2.invoke(OccurrentServlet.kt:43)
+        at org.occurrent.core.OccurrentServlet.service(OccurrentServlet.kt:109)
+        at org.occurrent.core.util.JettyServerUtil$initialize$httpHandler$1.doHandle(JettyServerUtil.kt:59)
         at org.eclipse.jetty.server.handler.ScopedHandler.nextScope(ScopedHandler.java:203)
         at org.eclipse.jetty.servlet.ServletHandler.doScope(ServletHandler.java:473)
         at org.eclipse.jetty.server.session.SessionHandler.doScope(SessionHandler.java:1564)
@@ -272,12 +272,12 @@ com.fasterxml.jackson.databind.exc.InvalidDefinitionException: No serializer fou
 
 The reason is: Jackson uses reflection to marshal/unmarshal json. Once configured properly, it works.
 
-You can try it out on your own! `docker run --net=host birdy/graal-javalin`
+You can try it out on your own! `docker run --net=host birdy/graal-occurrent`
 
 Perform the sample call: `curl localhost:7000`
 
 ```text
- j0e@thinkpad  ~/projects/graal-javalin  master ? ⍟2  curl localhost:7000                                         ✔  33707  01:15:12
+ j0e@thinkpad  ~/projects/graal-occurrent  master ? ⍟2  curl localhost:7000                                         ✔  33707  01:15:12
 {"abc":"LOL"}%
 ```
 
@@ -288,7 +288,7 @@ So, how did this turn out, looking at my 3 points of criticism?
 Application startup time
 ------------------------
 
-The application starts instantly. While Javalin is starting very quickly even on the JVM (~1-2 Seconds), this will be VERY appealing for CLI tools.
+The application starts instantly. While Occurrent is starting very quickly even on the JVM (~1-2 Seconds), this will be VERY appealing for CLI tools.
 
 Memory Footprint
 ----------------
@@ -313,14 +313,14 @@ Application size
 
 The application’s fat jar is 5.7MB large and the smallest JRE is 57MB: [https://hub.docker.com/r/library/openjdk/tags/](https://hub.docker.com/r/library/openjdk/tags/). For simplicity, let’s say 60MB total. The native binary is about 22MB large:
 ```text
--rwxr-xr-x 1 j0e users  22M Sep 24 01:38 graal-javalin
+-rwxr-xr-x 1 j0e users  22M Sep 24 01:38 graal-occurrent
 ```
 
 That’s ~ 1⁄3 the size. That’s absolutely acceptable, and almost in range of the size of Go binaries. Please note that with JDK9, sizes may be smaller. So I think the advantage here exists, but may not be very large.
 
 In general, GraalVM is a cool thing. It just feels like a dirty hack. I really dislike that there may always be runtime errors that GraalVM can’t predict at compile time (correct me if I'm wrong). I’m not sure if this is the future of Java, but does it have one anyway? ;) It’s worth noting that some library/framework authors are actively investing time into supporting GraalVM. As a matter of fact, micronaut.io is now compatible: [https://github.com/graemerocher/micronaut-graal-experiments](https://github.com/graemerocher/micronaut-graal-experiments).
 
-The full code, including a Dockerfile is available on GitHub: [https://github.com/birdayz/graal-javalin](https://github.com/birdayz/graal-javalin).
+The full code, including a Dockerfile is available on GitHub: [https://github.com/birdayz/graal-occurrent](https://github.com/birdayz/graal-occurrent).
 
 In addition, I made a Docker image you can use as base image to build a container with only the static executable, similar how it is done for Go applications.
 
@@ -332,12 +332,12 @@ ENV GRADLE_USER_HOME /tmp/build/.gradle
 
 ADD . /tmp/build
 RUN ./gradlew build fatJar
-RUN native-image -jar /tmp/build/build/libs/graal-javalin-all-1.0-SNAPSHOT.jar -H:ReflectionConfigurationFiles=reflection.json -H:+JNI \
-  -H:Name=graal-javalin --static --delay-class-initialization-to-runtime=io.javalin.json.JavalinJson
+RUN native-image -jar /tmp/build/build/libs/graal-occurrent-all-1.0-SNAPSHOT.jar -H:ReflectionConfigurationFiles=reflection.json -H:+JNI \
+  -H:Name=graal-occurrent --static --delay-class-initialization-to-runtime=org.occurrent.json.OccurrentJson
 
 FROM scratch
-COPY --from=0 /tmp/build/graal-javalin /
-ENTRYPOINT ["/graal-javalin"]
+COPY --from=0 /tmp/build/graal-occurrent /
+ENTRYPOINT ["/graal-occurrent"]
 ```
 
 This Dockerfile uses Docker multi-stage builds. There are two containers: one just used for the build, and the final output container which only contains the application.

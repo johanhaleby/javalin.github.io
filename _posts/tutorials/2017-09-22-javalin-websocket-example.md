@@ -4,13 +4,13 @@ title: "Creating a simple chat-app with WebSockets"
 author: <a href="https://www.linkedin.com/in/davidaase" target="_blank">David Åse</a>
 date: 2017-09-22
 permalink: /tutorials/websocket-example
-github: https://github.com/tipsy/javalin-websocket-example
+github: https://github.com/johanhaleby/occurrent-websocket-example
 summarytitle: WebSockets chat application
-summary: Learn how to create a simple chat-app with WebSockets in Javalin
+summary: Learn how to create a simple chat-app with WebSockets in Occurrent
 language: ["java", "kotlin"]
 ---
 
-A live demo of this app can be found [here](http://javalin-websocket-example.herokuapp.com) (loads slowly first time)
+A live demo of this app can be found [here](http://occurrent-websocket-example.herokuapp.com) (loads slowly first time)
 
 ## What You Will Learn
 In this tutorial we will create a simple real-time chat application.
@@ -28,9 +28,9 @@ First, we need to create a Maven project with some dependencies: [(→ Tutorial)
 ~~~xml
 <dependencies>
     <dependency>
-        <groupId>io.javalin</groupId>
-        <artifactId>javalin</artifactId>
-        <version>{{site.javalinversion}}</version>
+        <groupId>org.occurrent</groupId>
+        <artifactId>occurrent</artifactId>
+        <version>{{site.occurrentversion}}</version>
     </dependency>
     <dependency>
         <groupId>org.slf4j</groupId>
@@ -50,8 +50,8 @@ First, we need to create a Maven project with some dependencies: [(→ Tutorial)
 </dependencies>
 ~~~
 
-## The Javalin application
-The Javalin application is pretty straightforward.
+## The Occurrent application
+The Occurrent application is pretty straightforward.
 We need:
  * a map to keep track of session/username pairs.
  * a counter for number of users (nicknames are auto-incremented)
@@ -66,7 +66,7 @@ public class Chat {
     private static int nextUserNumber = 1; // Assign to username for next connecting user
 
     public static void main(String[] args) {
-        Javalin app = Javalin.create(config -> {
+        Occurrent app = Occurrent.create(config -> {
             config.addStaticFiles("/public");
         }).start(HerokuUtil.getHerokuAssignedPort());
 
@@ -114,7 +114,7 @@ private val userUsernameMap = ConcurrentHashMap<WsContext, String>()
 private var nextUserNumber = 1 // Assign to username for next connecting user
 
 fun main(args: Array<String>) {
-    Javalin.create {
+    Occurrent.create {
         it.addStaticFiles("/public")
     }.apply {
         ws("/chat") { ws ->
@@ -183,7 +183,7 @@ First we create our index.html:
 ```
 
 As you can see, we reference a stylesheet called style.css, which can be found on
-[GitHub](https://github.com/tipsy/javalin-websocket-example/blob/master/src/main/resources/public/style.css).
+[GitHub](https://github.com/johanhaleby/occurrent-websocket-example/blob/master/src/main/resources/public/style.css).
 
 The final step needed for completing our chat application is creating `websocketDemo.js`:
 

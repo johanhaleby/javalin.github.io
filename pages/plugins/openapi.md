@@ -32,18 +32,18 @@ Add the dependency:
 
 ```xml
 <dependency>
-    <groupId>io.javalin</groupId>
-    <artifactId>javalin-openapi</artifactId>
-    <version>{{site.javalinversion}}</version>
+    <groupId>org.occurrent</groupId>
+    <artifactId>occurrent-openapi</artifactId>
+    <version>{{site.occurrentversion}}</version>
 </dependency>
 ```
 
-<div class="comment">Note that if you're using <code>javalin-bundle</code> the OpenAPI plugin is already included.</div>
+<div class="comment">Note that if you're using <code>occurrent-bundle</code> the OpenAPI plugin is already included.</div>
 
 Register the plugin:
 
 {% capture java %}
-Javalin.create(config -> {
+Occurrent.create(config -> {
     config.registerPlugin(new OpenApiPlugin(getOpenApiOptions()));
 }).start();
 
@@ -55,7 +55,7 @@ private OpenApiOptions getOpenApiOptions() {
 }
 {% endcapture %}
 {% capture kotlin %}
-Javalin.create { config ->
+Occurrent.create { config ->
     config.registerPlugin(OpenApiPlugin(getOpenApiOptions()))
 }.start()
 
@@ -129,7 +129,7 @@ OpenApiOptions(initialConfigurationCreator)
 
 ## Documenting Handler
 
-Because of the dynamic definition of endpoints in Javalin, it is necessary to attach some metadata to the endpoints.
+Because of the dynamic definition of endpoints in Occurrent, it is necessary to attach some metadata to the endpoints.
 The OpenAPI documentation can be defined via a [DSL](https://en.wikipedia.org/wiki/Domain-specific_language)- and/or
 by an [annotations](https://en.wikipedia.org/wiki/Java_annotation)-based approach. Both can be mixed in the same
 application. If both approaches are used on the same handler, the DSL documentation will take precedence over annotations.
@@ -575,7 +575,7 @@ class UserController {
 ```
 
 ### Server-sent events
-The `app.sse` method for adding a SSE endpoint in Javalin is just a wrapped `app.get` call.
+The `app.sse` method for adding a SSE endpoint in Occurrent is just a wrapped `app.get` call.
 To document your `app.sse` method, you will have to declare a standard `app.get` `Handler` and call the SSE handler manually:
 
 ```kotlin
@@ -759,12 +759,12 @@ You can have both ReDoc and Swagger UI enabled at the same time.
 #### Acknowledgements
 
 The original version of this plugin and its documentation was written almost
-entirely by [Tobias Walle](https://github.com/tipsy/javalin/pulls?q=is%3Apr+author%3ATobiasWalle) ([LinkedIn](https://www.linkedin.com/in/tobias-walle/)).
+entirely by [Tobias Walle](https://github.com/johanhaleby/occurrent/pulls?q=is%3Apr+author%3ATobiasWalle) ([LinkedIn](https://www.linkedin.com/in/tobias-walle/)).
 
 It has later been improved upon by many contributors, most notably:
 
-* [maxemann96](https://github.com/tipsy/javalin/pulls?q=is%3Apr+author%3Amaxemann96)
-* [sealedtx](https://github.com/tipsy/javalin/pulls?q=is%3Apr+author%3Asealedtx)
-* [28Smiles](https://github.com/tipsy/javalin/pulls?q=is%3Apr+author%3A28Smiles)
-* [chsfleury](https://github.com/tipsy/javalin/pulls?q=is%3Apr+author%3Achsfleury)
-* [RalphSteinhagen](https://github.com/tipsy/javalin/pulls?q=is%3Apr+author%3ARalphSteinhagen)
+* [maxemann96](https://github.com/johanhaleby/occurrent/pulls?q=is%3Apr+author%3Amaxemann96)
+* [sealedtx](https://github.com/johanhaleby/occurrent/pulls?q=is%3Apr+author%3Asealedtx)
+* [28Smiles](https://github.com/johanhaleby/occurrent/pulls?q=is%3Apr+author%3A28Smiles)
+* [chsfleury](https://github.com/johanhaleby/occurrent/pulls?q=is%3Apr+author%3Achsfleury)
+* [RalphSteinhagen](https://github.com/johanhaleby/occurrent/pulls?q=is%3Apr+author%3ARalphSteinhagen)

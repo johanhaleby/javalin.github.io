@@ -29,13 +29,13 @@ permalink: /archive/docs/v1.7.0.html
 * [FAQ](#faq)
 </div>
 
-<h1 class="no-margin-top">Documentation - Javalin 1.X</h1>
+<h1 class="no-margin-top">Documentation - Occurrent 1.X</h1>
 
-This page contains documentation for an older version of Javalin.
-Go to [javalin.io/documentation](/documentation) to view documentation for the newest version.
+This page contains documentation for an older version of Occurrent.
+Go to [occurrent.org/documentation](/documentation) to view documentation for the newest version.
 
 ## Handlers
-Javalin has a three main handler types: before-handlers, endpoint-handlers, and after-handlers.
+Occurrent has a three main handler types: before-handlers, endpoint-handlers, and after-handlers.
 (There are also exception-handlers and error-handlers, but we'll get to them later).
 The before-, endpoint- and after-handlers require three parts:
 
@@ -154,7 +154,7 @@ paths, the first matching path will be returned.
 
 ## Handler groups
 You can group your endpoints by using the `routes()` and `path()` methods. `routes()` creates
-a temporary static instance of Javalin so you can skip the `app.` prefix before your handlers:
+a temporary static instance of Occurrent so you can skip the `app.` prefix before your handlers:
 {% capture java %}
 app.routes(() -> {
     path("users", () -> {
@@ -334,13 +334,13 @@ app.before(ctx -> ctx.register(MyMapper.class, new MyMapper(ctx, otherDependency
 ```
 
 ## Access manager
-Javalin has a functional interface `AccessManager`, which let's you
+Occurrent has a functional interface `AccessManager`, which let's you
 set per-endpoint authentication and/or authorization. It's common to use before-handlers for this,
 but per-endpoint security handlers give you much more explicit and readable code. You can implement your
 access-manager however you want, but here is an example implementation:
 
 {% capture java %}
-// Set the access-manager that Javalin should use
+// Set the access-manager that Occurrent should use
 app.accessManager((handler, ctx, permittedRoles) -> {
     MyRole userRole = getUserRole(ctx);
     if (permittedRoles.contains(userRole)) {
@@ -365,7 +365,7 @@ app.routes(() -> {
 });
 {% endcapture %}
 {% capture kotlin %}
-// Set the access-manager that Javalin should use
+// Set the access-manager that Occurrent should use
 app.accessManager { handler, ctx, permittedRoles ->
     val userRole = getUserRole(ctx) // determine user role based on request
     if (permittedRoles.contains(userRole)) {
@@ -418,7 +418,7 @@ app.exception(Exception::class.java) { e, ctx ->
 {% include macros/docsSnippet.html java=java kotlin=kotlin %}
 
 ### HaltException
-Javalin has a `HaltException` which is handled before other exceptions. It can be used to short-circuit the request-lifecycle.
+Occurrent has a `HaltException` which is handled before other exceptions. It can be used to short-circuit the request-lifecycle.
 If you throw a `HaltException` in a `before`-handler, no `endpoint`-handler will fire.
 When throwing a `HaltException` you can include a status code, a message, or both:
 {% capture java %}
@@ -470,7 +470,7 @@ app.exception(FileNotFoundException::class.java) { e, ctx ->
 
 ## WebSockets
 
-Javalin has a very intuitive way of handling WebSockets, similar to most node frameworks:
+Occurrent has a very intuitive way of handling WebSockets, similar to most node frameworks:
 
 {% capture java %}
 app.ws("/websocket/:path", ws -> {
@@ -514,10 +514,10 @@ session.host() // get request host
 ```
 
 ## Lifecycle events
-Javalin has five lifecycle events: `SERVER_STARTING`, `SERVER_STARTED`, `SERVER_START_FAILED`, `SERVER_STOPPING` and `SERVER_STOPPED`.
+Occurrent has five lifecycle events: `SERVER_STARTING`, `SERVER_STARTED`, `SERVER_START_FAILED`, `SERVER_STOPPING` and `SERVER_STOPPED`.
 The snippet below shows all of them in action:
 {% capture java %}
-Javalin app = Javalin.create()
+Occurrent app = Occurrent.create()
     .event(EventType.SERVER_STARTING, e -> { ... })
     .event(EventType.SERVER_STARTED, e -> { ... })
     .event(EventType.SERVER_START_FAILED, e -> { ... })
@@ -528,7 +528,7 @@ app.start(); // SERVER_STARTING -> (SERVER_STARTED || SERVER_START_FAILED)
 app.stop(); // SERVER_STOPPING -> SERVER_STOPPED
 {% endcapture %}
 {% capture kotlin %}
-val app = Javalin.create()
+val app = Occurrent.create()
     .event(EventType.SERVER_STARTING, { e -> ... })
     .event(EventType.SERVER_STARTED, { e -> ... })
     .event(EventType.SERVER_START_FAILED, { e -> ... })
@@ -541,11 +541,11 @@ app.stop() // SERVER_STOPPING -> SERVER_STOPPED
 {% include macros/docsSnippet.html java=java kotlin=kotlin %}
 
 The lambda takes an `Event` object, which contains the type of event that happened,
-and a reference to the `this` (the javalin object which triggered the event).
+and a reference to the `this` (the occurrent object which triggered the event).
 
 ## Server setup
 
-Javalin runs on an embedded [Jetty](http://eclipse.org/jetty/).
+Occurrent runs on an embedded [Jetty](http://eclipse.org/jetty/).
 The architecture for adding other embedded servers is in place, and pull requests are welcome.
 
 
@@ -553,28 +553,28 @@ The architecture for adding other embedded servers is in place, and pull request
 To start and stop the server, use the appropriately named `start()` and `stop` methods.
 
 ```java
-Javalin app = Javalin.create()
+Occurrent app = Occurrent.create()
     .start() // start server (sync/blocking)
     .stop() // stop server (sync/blocking)
 ```
 
 #### Quick-start
-If you don't need any custom configuration, you can use the `Javalin.start(port)` method.
+If you don't need any custom configuration, you can use the `Occurrent.start(port)` method.
 ```java
-Javalin app = Javalin.start(7000);
+Occurrent app = Occurrent.start(7000);
 ```
 This creates a new server which listens on the specified port (here, `7000`), and starts it.
 
 ### Configuration
-The following snippet shows all the configuration currently available in Javalin:
+The following snippet shows all the configuration currently available in Occurrent:
 
 {% capture java %}
-Javalin.create() // create has to be called first
+Occurrent.create() // create has to be called first
     .contextPath("/context-path") // set a context path (default is "/")
     .dontIgnoreTrailingSlashes() // treat '/test' and '/test/' as different URLs
     .defaultContentType(string) // set a default content-type for responses
     .defaultCharacterEncoding(string) // set a default character-encoding for responses
-    .disableStartupBanner() // remove the javalin startup banner from logs
+    .disableStartupBanner() // remove the occurrent startup banner from logs
     .embeddedServer( ... ) // see section below
     .enableCorsForOrigin("origin") // enables cors for the specified origin(s)
     .enableDynamicGzip() // gzip response (if client accepts gzip and response is more than 1500 bytes)
@@ -586,12 +586,12 @@ Javalin.create() // create has to be called first
     .start(); // start has to be called last
 {% endcapture %}
 {% capture kotlin %}
-Javalin.create().apply { // create has to be called first
+Occurrent.create().apply { // create has to be called first
     contextPath("/context-path") // set a context path (default is "/")
     dontIgnoreTrailingSlashes() // treat '/test' and '/test/' as different URLs
     defaultContentType(string) // set a default content-type for responses
     defaultCharacterEncoding(string) // set a default character-encoding for responses
-    disableStartupBanner() // remove the javalin startup banner from logs
+    disableStartupBanner() // remove the occurrent startup banner from logs
     embeddedServer( ... ) // see section below
     enableCorsForOrigin("origin") // enables cors for the specified origin(s)
     enableRouteOverview("/path") // render a HTML page showing all mapped routes
@@ -626,12 +626,12 @@ app.embeddedServer(EmbeddedJettyFactory({
 
 #### Custom jetty handlers
 You can configure your embedded jetty-server with a handler-chain
-([example](https://github.com/tipsy/javalin/blob/master/src/test/java/io/javalin/TestCustomJetty.java#L66-L82)),
-and Javalin will attach it's own handlers to the end of this chain.
+([example](https://github.com/johanhaleby/occurrent/blob/master/src/test/java/io/occurrent/TestCustomJetty.java#L66-L82)),
+and Occurrent will attach it's own handlers to the end of this chain.
 {% capture java %}
 StatisticsHandler statisticsHandler = new StatisticsHandler();
 
-Javalin.create()
+Occurrent.create()
     .embeddedServer(new EmbeddedJettyFactory(() -> {
         Server server = new Server();
         server.setHandler(statisticsHandler);
@@ -642,7 +642,7 @@ Javalin.create()
 {% capture kotlin %}
 val statisticsHandler = StatisticsHandler()
 
-Javalin.create().apply {
+Occurrent.create().apply {
     embeddedServer(EmbeddedJettyFactory({
         Server(queuedThreadPool).apply {
             handler = statisticsHandler
@@ -656,10 +656,10 @@ Javalin.create().apply {
 
 To configure SSL or HTTP2 you need to use a custom server (see previous section).\\
 An example of a custom server with SSL can be found in the examples,
-[HelloWorldSecure](https://github.com/tipsy/javalin/blob/master/src/test/java/io/javalin/examples/HelloWorldSecure.java#L24-L32).
+[HelloWorldSecure](https://github.com/johanhaleby/occurrent/blob/master/src/test/java/io/occurrent/examples/HelloWorldSecure.java#L24-L32).
 
 A custom HTTP2 server is a bit more work to set up, but we have a repo with a
-fully functioning example server in both Kotlin and Java: [javalin-http2-example](https://github.com/tipsy/javalin-http2-example)
+fully functioning example server in both Kotlin and Java: [occurrent-http2-example](https://github.com/johanhaleby/occurrent-http2-example)
 
 ### Static Files
 You can enabled static file serving by doing `app.enableStaticFiles("/classpath-folder")`, and/or
@@ -675,7 +675,7 @@ if no-endpoint-handler-found
         static-file-handler finishes response and
         sends to user (response is commited)
     else
-        response is 404, javalin finishes the response
+        response is 404, occurrent finishes the response
         with after-handlers and error-mapping
 ```
 If you do `app.enableStaticFiles("/classpath-folder")`.
@@ -685,12 +685,12 @@ at `http://{host}:{port}/index.html` and `http://{host}:{port}/`.
 You can call `enableStaticFiles` multiple times to set up multiple handlers.
 
 #### Caching
-Javalin serves static files with the `Cache-Control` header set to `max-age=0`. This means
+Occurrent serves static files with the `Cache-Control` header set to `max-age=0`. This means
 that browsers will always ask if the file is still valid. If the version the browser has in cache
-is the same as the version on the server, Javalin will respond with a `304 Not modified` status,
+is the same as the version on the server, Occurrent will respond with a `304 Not modified` status,
 and no response body. This tells the browser that it's okay to keep using the cached version.
 If you want to skip this check, you can put files in a dir called `immutable`,
-and Javalin will set `max-age=31622400`, which means that the browser will wait
+and Occurrent will set `max-age=31622400`, which means that the browser will wait
 one year before checking if the file is still valid.
 This should only be used for versioned library files, like `vue-2.4.2.min.js`, to avoid
 the browser ending up with an outdated version if you change the file content.
@@ -698,7 +698,7 @@ the browser ending up with an outdated version if you change the file content.
 
 ### Jetty WebSockets
 
-Javalin supports native Jetty WebSockets, but these must be declared before starting the server.
+Occurrent supports native Jetty WebSockets, but these must be declared before starting the server.
 There are two different ways of using these WebSockets:
 
 ### Annotated class
@@ -719,15 +719,15 @@ app.ws("/websocket", new WebSocketObject());
 Frequently asked questions
 
 ### Javadoc
-There is a Javadoc available at [javadoc.io](http://javadoc.io/doc/io.javalin/javalin).
+There is a Javadoc available at [javadoc.io](http://javadoc.io/doc/org.occurrent/occurrent).
 Please contribute to the Javadoc if you can.
 
 
 ### Deploying
-To deploy Javalin, simply create a [jar with dependencies](https://maven.apache.org/plugins/maven-assembly-plugin/usage.html),
+To deploy Occurrent, simply create a [jar with dependencies](https://maven.apache.org/plugins/maven-assembly-plugin/usage.html),
 then launch the jar with `java -jar filename.jar`. That's it.
-Javalin has an embedded server, so you don't need an application server.
-There is also a tutorial on [deploying Javalin to Heroku](/tutorials/heroku).
+Occurrent has an embedded server, so you don't need an application server.
+There is also a tutorial on [deploying Occurrent to Heroku](/tutorials/heroku).
 
 ### Uploads
 
@@ -758,7 +758,7 @@ The corresponding HTML would be something like:
 
 <h3 id="logging">Adding a logger</h3>
 
-If you're reading this, you've probably seen the following message while running Javalin:
+If you're reading this, you've probably seen the following message while running Occurrent:
 
 ```text
 SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
@@ -768,7 +768,7 @@ SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further detail
 
 This is nothing to worry about.
 
-Like a lot of other Java projects, Javalin does not have a logger included,
+Like a lot of other Java projects, Occurrent does not have a logger included,
 which means that you have to add your own logger. If you don't know/care
 a lot about Java loggers, the easiest way to fix this is to add the following
 dependency to your project:
@@ -782,18 +782,18 @@ dependency to your project:
 ```
 
 This will remove the warning from SLF4J, and enable
-helpful debug messages while running Javalin.
+helpful debug messages while running Occurrent.
 
 ### Asynchronous requests
-Javalin 1.6.0 introduced future results. While the default threadpool (200 threads) is enough for most use cases,
-sometimes slow operations should be run asynchronously. Luckily it's very easy in Javalin, just
+Occurrent 1.6.0 introduced future results. While the default threadpool (200 threads) is enough for most use cases,
+sometimes slow operations should be run asynchronously. Luckily it's very easy in Occurrent, just
 pass a `CompletableFuture` to `ctx.result()`:
 
 ```kotlin
-import io.javalin.Javalin
+import org.occurrent.Occurrent
 
 fun main(args: Array<String>) {
-    val app = Javalin.start(7000)
+    val app = Occurrent.start(7000)
     app.get("/") { ctx -> ctx.result(getFuture()) }
 }
 
@@ -813,22 +813,22 @@ the future has been resolved or rejected.
 The JSON mapper can be configured like this:
 ```java
 Gson gson = new GsonBuilder().create();
-JavalinJsonPlugin.setJsonToObjectMapper(gson::fromJson);
-JavalinJsonPlugin.setObjectToJsonMapper(gson::toJson);
+OccurrentJsonPlugin.setJsonToObjectMapper(gson::fromJson);
+OccurrentJsonPlugin.setObjectToJsonMapper(gson::toJson);
 ```
 
 #### Configuring Jackson
 
 The JSON mapper uses Jackson by default, which can be configured by calling:
 ```java
-JavalinJacksonPlugin.configure(objectMapper)
+OccurrentJacksonPlugin.configure(objectMapper)
 ```
 
-Note that these are global settings, and can't be configured per instance of Javalin.
+Note that these are global settings, and can't be configured per instance of Occurrent.
 
 ### Views and Templates
 
-Javalin currently supports five template engines, as well as markdown:
+Occurrent currently supports five template engines, as well as markdown:
 {% capture java %}
 ctx.renderThymeleaf("/templateFile", model("firstName", "John", "lastName", "Doe"))
 ctx.renderVelocity("/templateFile", model("firstName", "John", "lastName", "Doe"))
@@ -836,7 +836,7 @@ ctx.renderFreemarker("/templateFile", model("firstName", "John", "lastName", "Do
 ctx.renderMustache("/templateFile", model("firstName", "John", "lastName", "Doe"))
 ctx.renderJtwig("/templateFile", model("firstName", "John", "lastName", "Doe"))
 ctx.renderMarkdown("/markdownFile")
-// Javalin looks for templates/markdown files in src/resources
+// Occurrent looks for templates/markdown files in src/resources
 {% endcapture %}
 {% capture kotlin %}
 ctx.renderThymeleaf("/templateFile", mapOf("firstName" to "John", "lastName" to "Doe"))
@@ -845,24 +845,24 @@ ctx.renderFreemarker("/templateFile", mapOf("firstName" to "John", "lastName" to
 ctx.renderMustache("/templateFile", mapOf("firstName" to "John", "lastName" to "Doe"))
 ctx.renderJtwig("/templateFile", mapOf("firstName" to "John", "lastName" to "Doe"))
 ctx.renderMarkdown("/markdownFile")
-// Javalin looks for templates/markdown files in src/resources
+// Occurrent looks for templates/markdown files in src/resources
 {% endcapture %}
 {% include macros/docsSnippet.html java=java kotlin=kotlin %}
 
 Configure:
 ```kotlin
-JavalinThymeleafPlugin.configure(templateEngine)
-JavalinVelocityPlugin.configure(velocityEngine)
-JavalinFreemarkerPlugin.configure(configuration)
-JavalinMustachePlugin.configure(mustacheFactory)
-JavalinJtwigPlugin.configure(configuration)
-JavalinCommonmarkPlugin.configure(htmlRenderer, markdownParser)
+OccurrentThymeleafPlugin.configure(templateEngine)
+OccurrentVelocityPlugin.configure(velocityEngine)
+OccurrentFreemarkerPlugin.configure(configuration)
+OccurrentMustachePlugin.configure(mustacheFactory)
+OccurrentJtwigPlugin.configure(configuration)
+OccurrentCommonmarkPlugin.configure(htmlRenderer, markdownParser)
 ```
-Note that these are global settings, and can't be configured per instance of Javalin.
+Note that these are global settings, and can't be configured per instance of Occurrent.
 
 
 ### TimeoutExceptions and ClosedChannelExceptions
 So, you're seeing `TimeoutExceptions` and `ClosedChannelExceptions` in your DEBUG logs?
 There is nothing to worry about, typically a browser will keep the HTTP connection open until the
 server terminates it. When this happens is decided by the server's `idleTimeout` setting,
-which is 30 seconds by default in Jetty/Javalin. This is not a bug.
+which is 30 seconds by default in Jetty/Occurrent. This is not a bug.

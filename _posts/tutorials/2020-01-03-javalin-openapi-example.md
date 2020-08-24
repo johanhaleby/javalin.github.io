@@ -7,12 +7,12 @@ summary: Learn how to document endpoints using OpenAPI 3, and how to render inte
 date: 2020-01-03
 author: <a href="https://www.linkedin.com/in/davidaase" target="_blank">David Åse</a>
 language: ["kotlin", "java"]
-github: https://github.com/tipsy/javalin-openapi-example
+github: https://github.com/johanhaleby/occurrent-openapi-example
 ---
 
 ## What you will learn
 
-This tutorial will teach you how to use the [Javalin OpenAPI plugin](/plugins/openapi)
+This tutorial will teach you how to use the [Occurrent OpenAPI plugin](/plugins/openapi)
 to create an OpenAPI spec (previously known as a "Swagger spec"). The OpenAPI spec is
 an API description format for REST APIs, which is readable for both humans and machines.
 A spec can be used to generate web based documentation and API clients for all major languages,
@@ -21,7 +21,7 @@ saving a lot of time for API consumers.
 We will build a `User` CRUD API with five operations and generate an OpenAPI spec for it.
 The example snippets contain both Java and Kotlin code,
 and a project for each language is available on
-[GitHub](https://github.com/tipsy/javalin-openapi-example).
+[GitHub](https://github.com/johanhaleby/occurrent-openapi-example).
 
 ## Dependencies
 
@@ -30,8 +30,8 @@ First, we need to create a Maven project with our dependencies: [(→ Tutorial)]
 ~~~xml
 <dependencies>
     <dependency>
-        <groupId>io.javalin</groupId>
-        <artifactId>javalin</artifactId>
+        <groupId>org.occurrent</groupId>
+        <artifactId>occurrent</artifactId>
         <version>3.7.0</version>
     </dependency>
     <dependency>
@@ -75,29 +75,29 @@ First, we need to create a Maven project with our dependencies: [(→ Tutorial)]
 Most of these are necessary for both Kotlin and Java, the few which aren't have been commented. \\
 ReDoc and Swagger UI are two different presentation UIs for OpenAPI specs.
 Usually you would only include one of these, but both are included in the example project so
-you can try them out and see which one you like. You can view the full [POM](https://github.com/tipsy/javalin-openapi-example/blob/master/pom.xml) on GitHub.
+you can try them out and see which one you like. You can view the full [POM](https://github.com/johanhaleby/occurrent-openapi-example/blob/master/pom.xml) on GitHub.
 
 ## Building the API
 
 Let's define our Main class. This is where we will be putting our server and our OpenAPI config:
 
 {% capture java %}
-package io.javalin.example.java;
+package org.occurrent.example.java;
 
-import io.javalin.Javalin;
-import io.javalin.example.java.user.UserController;
-import io.javalin.plugin.openapi.OpenApiOptions;
-import io.javalin.plugin.openapi.OpenApiPlugin;
-import io.javalin.plugin.openapi.ui.ReDocOptions;
-import io.javalin.plugin.openapi.ui.SwaggerOptions;
+import org.occurrent.Occurrent;
+import org.occurrent.example.java.user.UserController;
+import org.occurrent.plugin.openapi.OpenApiOptions;
+import org.occurrent.plugin.openapi.OpenApiPlugin;
+import org.occurrent.plugin.openapi.ui.ReDocOptions;
+import org.occurrent.plugin.openapi.ui.SwaggerOptions;
 import io.swagger.v3.oas.models.info.Info;
 
-import static io.javalin.apibuilder.ApiBuilder.*;
+import static org.occurrent.apibuilder.ApiBuilder.*;
 
 public class Main {
 
     public static void main(String[] args) {
-        Javalin.create(config -> {
+        Occurrent.create(config -> {
             config.registerPlugin(getConfiguredOpenApiPlugin());
             config.defaultContentType = "application/json";
         }).routes(() -> {
@@ -119,7 +119,7 @@ public class Main {
     private static OpenApiPlugin getConfiguredOpenApiPlugin() {
         Info info = new Info().version("1.0").description("User API");
         OpenApiOptions options = new OpenApiOptions(info)
-                .activateAnnotationScanningFor("io.javalin.example.java")
+                .activateAnnotationScanningFor("org.occurrent.example.java")
                 .path("/swagger-docs") // endpoint for OpenAPI json
                 .swagger(new SwaggerOptions("/swagger-ui")) // endpoint for swagger-ui
                 .reDoc(new ReDocOptions("/redoc")) // endpoint for redoc
@@ -133,20 +133,20 @@ public class Main {
 }
 {% endcapture %}
 {% capture kotlin %}
-package io.javalin.example.kotlin
+package org.occurrent.example.kotlin
 
-import io.javalin.Javalin
-import io.javalin.apibuilder.ApiBuilder.*
-import io.javalin.example.kotlin.user.UserController
-import io.javalin.plugin.openapi.OpenApiOptions
-import io.javalin.plugin.openapi.OpenApiPlugin
-import io.javalin.plugin.openapi.ui.ReDocOptions
-import io.javalin.plugin.openapi.ui.SwaggerOptions
+import org.occurrent.Occurrent
+import org.occurrent.apibuilder.ApiBuilder.*
+import org.occurrent.example.kotlin.user.UserController
+import org.occurrent.plugin.openapi.OpenApiOptions
+import org.occurrent.plugin.openapi.OpenApiPlugin
+import org.occurrent.plugin.openapi.ui.ReDocOptions
+import org.occurrent.plugin.openapi.ui.SwaggerOptions
 import io.swagger.v3.oas.models.info.Info
 
 fun main() {
 
-    Javalin.create {
+    Occurrent.create {
         it.registerPlugin(getConfiguredOpenApiPlugin())
         it.defaultContentType = "application/json"
     }.routes {
@@ -195,9 +195,9 @@ The API definition in the snippet above references something called `UserControl
 which doesn't exist. Let's create a skeleton:
 
 {% capture java %}
-package io.javalin.example.java.user;
+package org.occurrent.example.java.user;
 
-import io.javalin.http.Context;
+import org.occurrent.http.Context;
 
 public class UserController {
 
@@ -219,9 +219,9 @@ public class UserController {
 }
 {% endcapture %}
 {% capture kotlin %}
-package io.javalin.example.kotlin.user
+package org.occurrent.example.kotlin.user
 
-import io.javalin.http.Context
+import org.occurrent.http.Context
 
 object UserController {
 
@@ -246,7 +246,7 @@ object UserController {
 
 This defines a simple CRUD API for `User` objects.
 
-If you run the code as it is now, Javalin will generate the following documentation:
+If you run the code as it is now, Occurrent will generate the following documentation:
 
 <img src="/img/posts/openapi/no-annotations.png" alt="OpenAPI screenshot" class="bordered-image">
 
@@ -291,7 +291,7 @@ fun getAll(ctx: Context) {
 <div class="comment" markdown="1">
 We've created a `UserService` and a `User` class.
 This is not too relevant for OpenAPI, so we're not showing them in the tutorial,
-but everything is available on [GitHub](https://github.com/tipsy/javalin-openapi-example).
+but everything is available on [GitHub](https://github.com/johanhaleby/occurrent-openapi-example).
 </div>
 
 Let's go through the different properties:
@@ -354,7 +354,7 @@ Let's document the `Update user` endpoint, which takes some input and has multip
 
 Compared to the endpoint we documented earlier, this one has two more properties:
 
-* **pathParams** - These define Javalin path-parameters. There is also `queryParams` and `formParams`.
+* **pathParams** - These define Occurrent path-parameters. There is also `queryParams` and `formParams`.
 * **requestBody** - This endpoint expects a JSON object as the request body
 
 This endpoint also has two more responses:
@@ -363,7 +363,7 @@ This endpoint also has two more responses:
 
 ## That's pretty much it!
 
-The [example repo](https://github.com/tipsy/javalin-openapi-example)
+The [example repo](https://github.com/johanhaleby/occurrent-openapi-example)
 contains a fully working API, so if you clone it you can play around with the `Try it out`
 button for each endpoint.
 
@@ -371,7 +371,7 @@ button for each endpoint.
 This was my first experience using OpenAPI, and documenting endpoints was surprisingly easy,
 thanks to the great job [Tobias Walle](https://github.com/tobiaswalle) has done on the plugin.
 
-The OpenAPI plugin also supports a [programmatic DSL](https://javalin.io/plugins/openapi#dsl) which is a bit more
+The OpenAPI plugin also supports a [programmatic DSL](https://occurrent.org/plugins/openapi#dsl) which is a bit more
 flexible and reusable, but I prefer keeping documentation more like a comment than actual code.
 
 ## Addendum
@@ -410,7 +410,7 @@ but you can just switch `kotlin` to `java` in the plugin config above to get a J
 Using the client is very straightforward in Kotlin:
 
 ```kotlin
-package io.javalin.example.kotlin.client
+package org.occurrent.example.kotlin.client
 
 import org.openapitools.client.apis.UserApi
 import org.openapitools.client.infrastructure.ClientException

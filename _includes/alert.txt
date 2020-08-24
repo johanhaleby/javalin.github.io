@@ -1,15 +1,15 @@
 #usage-survey {
     position: relative;
     padding: 10px 50px 10px 46px;
-    background: rgba($javalin-brand-primary, .075);
-    border: 1px solid rgba($javalin-brand-primary, .6);
+    background: rgba($occurrent-brand-primary, .075);
+    border: 1px solid rgba($occurrent-brand-primary, .6);
     border-radius: 5px;
     font-size: 15px;
     margin-top: -8px;
     margin-bottom: 20px;
     line-height: 30px;
     a {
-        color: $javalin-brand-primary;
+        color: $occurrent-brand-primary;
         font-weight: 700;
         text-decoration: underline;
     }
@@ -33,7 +33,7 @@
         width: 20px;
         height: 20px;
         animation: pulse-dot 1.25s cubic-bezier(0.455, 0.03, 0.515, 0.955) -.4s infinite;
-        background: $javalin-brand-primary;
+        background: $occurrent-brand-primary;
         border-radius: 10px;
     }
 }
@@ -60,7 +60,7 @@
                 <div id="usage-survey">
                     <div class="pulsating-circle"></div>
                     We've made a short <a href="https://docs.google.com/forms/d/e/1FAIpQLScVaZ9t7AdKBejGwS5m8otH7xdERSg2vqF7OrtvvYx8y_sr1g/viewform?usp=sf_link">survey</a>
-                    to find out more about Javalin users. If you have the time, please fill it out.
+                    to find out more about Occurrent users. If you have the time, please fill it out.
                     <span class="close">✖</span>
                 </div>
             `);

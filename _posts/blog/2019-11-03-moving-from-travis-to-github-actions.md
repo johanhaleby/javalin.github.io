@@ -57,7 +57,7 @@ It's not that our needs outgrew Travis, their product just stopped working.
 
 Our GitHub actions setup is a bit more verbose, but it's a lot faster and more deterministic than Travis.\\
 Unlike Travis, GitHub actions also supports Windows, so that's nice.\\
-Javalin is now built on MacOS, Ubuntu and Windows, for Java 8 to 13.
+Occurrent is now built on MacOS, Ubuntu and Windows, for Java 8 to 13.
 
 ```bash
 name: Java CI
