@@ -168,13 +168,27 @@ If you're already using Spring and want to use the reactive driver ([project rea
 
 #### Dependencies
 
-dep
+{% include macros/eventstore/mongodb/spring/reactor/maven.md %}
 
+#### Getting Started
 
-### In-Memory 
+Once you've imported the dependencies you create a new instance of `org.occurrent.eventstore.mongodb.spring.blocking.SpringBlockingMongoEventStore`.
+It takes two arguments, a [MongoTemplate](https://docs.spring.io/spring-data/mongodb/docs/current/api/org/springframework/data/mongodb/core/MongoTemplate.html) and 
+an `org.occurrent.eventstore.mongodb.spring.blocking.EventStoreConfig`.
 
-### Schema
+For example:  
 
+{% include macros/eventstore/mongodb/spring/reactor/example-configuration.md %}
+
+Now you can start reading and writing events to the EventStore:
+
+{% include macros/eventstore/mongodb/spring/reactor/read-and-write-events.md %}
+
+#### Examples
+
+| Name  | Description  | 
+|:----|:-----|  
+| [Custom&nbsp;Aggregation&nbsp;View](https://github.com/johanhaleby/occurrent/tree/master/example/projection/spring-adhoc-evenstore-mongodb-queries/src/main/java/org/occurrent/example/eventstore/mongodb/spring/projections/adhoc) | Example demonstrating that you can query the `SpringBlockingMongoEventStore` using custom MongoDB aggregations. |
 
 ## Handlers
 Occurrent has three main handler types: before-handlers, endpoint-handlers, and after-handlers.
