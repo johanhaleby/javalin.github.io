@@ -11,9 +11,9 @@ permalink: /documentation
 * [Getting Started](#getting-started)
 * [Choosing An EventStore](#choosing-an-eventstore)
 * * [MongoDB](#mongodb)
-* * * [MongoDB Native Driver](#mongodb-native-driver)
-* * * [Spring with MongoTemplate](#spring-with-mongotemplate) 
-* * * [Spring with ReactiveMongoTemplate](#spring-with-reactivemongotemplate) 
+* * * [Native Driver](#eventstore-with-mongodb-native-driver)
+* * * [Spring (Blocking)](#eventstore-with-spring-mongotemplate-blocking) 
+* * * [Spring (Reactive)](#eventstore-with-spring-reactivemongotemplate-reactive) 
 * * [In-Memory](#in-memory)
 * [HTTP Handlers](#handlers)
 * * [Before](#before-handlers)
@@ -61,8 +61,8 @@ The documentation on this page is always for the latest version of Occurrent, cu
 # Getting started
 
 Getting started with Occurrent involves these steps:
+<div class="comment">It's recommended to read up on <a href="https://cloudevents.io/">CloudEvent's</a> and its <a href="https://github.com/cloudevents/spec/blob/v1.0/spec.md">specification</a> so that you're familiar with the structure and schema of a CloudEvent.</div>
 
-1. It's recommended to read up on [CloudEvent's](https://cloudevents.io/) and its [specification](https://github.com/cloudevents/spec/blob/v1.0/spec.md) so that you're familiar with the structure and schema of a CloudEvent. 
 1. Choose an underlying datastore for an [event store](#choosing-an-eventstore). Luckily there are only two choices at the moment, MongoDB and an in-memory implementation. Hopefully this will be a more difficult decision in the future :)
 1. Once a datastore has been decided it's time to choose an EventStore implementation for this datastore since there may be more than one.
 1. If you need subscriptions (i.e. the ability to subscribe to changes from an EventStore) then you need to pick a library that implements this for the datastore that you've chosen. 
@@ -73,32 +73,55 @@ Getting started with Occurrent involves these steps:
 
 # Choosing An EventStore
 
-There are currently two different datastores to choose from. 
+There are currently two different datastores to choose from, [MongoDB](#mongodb) and [In-Memory](#in-memory). 
 
 ## MongoDB
 
-Uses MongoDB as the underlying datastore. They require MongoDB 4.2 or above. All implementations use transactions to guarantee consistent writes (see WriteCondition).
+Uses MongoDB, version 4.2, as  the underlying datastore for the CloudEvents. All implementations use transactions to guarantee consistent writes (see WriteCondition).
 Each EventStore will automatically create a few indexes (TODO describe these) on startup to allow for fast consistent writes, optimistic concurrency and to avoid duplicated events.
 These indexes can also be used in queries against the EventStore (see EventStoreQueries). 
  
 There are three different MongoDB EventStore implementations to choose from:
-* [MongoDB Native Driver](#mongodb-native-driver)
-* [Spring with MongoTemplate](#spring-with-mongotemplate) 
-* [Spring with ReactiveMongoTemplate](#spring-with-reactivemongotemplate) 
+* [Native Driver](#eventstore-with-mongodb-native-driver)
+* [Spring (Blocking)](#eventstore-with-spring-mongotemplate-blocking) 
+* [Spring (Reactive)](#eventstore-with-spring-reactivemongotemplate-reactive) 
 
-### MongoDB Native Driver
+### EventStore with MongoDB Native Driver
 
 #### What is it?
-It uses the "native" Java MongoDB synchronous driver (see [website](https://docs.mongodb.com/drivers/java)). 
+An EventStore implementation that uses the "native" Java MongoDB synchronous driver (see [website](https://docs.mongodb.com/drivers/java)) to read and write
+[CloudEvent's](https://cloudevents.io/) to MongoDB.
 
 #### When to use?
-Use when you don't need Spring support.
+Use when you don't need Spring support and want to use MongoDB as the underlying datastore.
 
 #### Dependencies
 
-dep
+{% include macros/eventstore/mongodb/native/maven.md %}
 
-### Spring with MongoTemplate  
+#### Getting Started
+
+Once you've imported the dependencies you create a new instance of `org.occurrent.eventstore.mongodb.nativedriver.MongoEventStore`.
+It takes four arguments, a [MongoClient](https://mongodb.github.io/mongo-java-driver/3.12/javadoc/com/mongodb/client/MongoClient.html), 
+the "database" and "event collection "that the EventStore will use to store events as well as an `org.occurrent.eventstore.mongodb.nativedriver.EventStoreConfig`.
+
+For example:  
+
+{% include macros/eventstore/mongodb/native/example-configuration.md %}
+
+
+Now you can start reading and writing events to the EventStore:
+
+{% include macros/eventstore/mongodb/native/read-and-write-events.md %}
+
+#### Examples
+
+| Name  | Description  | 
+|:----|:-----|  
+| [Number&nbsp;Guessing&nbsp;Game](https://github.com/johanhaleby/occurrent/tree/master/example/domain/number-guessing-game/mongodb/native) | A simple game implemented using a pure domain model and stores events in MongoDB using `MongoEventStore`. It also generates integration events and publishes these to RabbitMQ. |
+
+
+### EventStore with Spring MongoTemplate (Blocking)  
 
 #### What is it?
 An implementation that uses Spring's [MongoTemplate](https://docs.spring.io/spring-data/mongodb/docs/current/api/org/springframework/data/mongodb/core/MongoTemplate.html)
@@ -109,7 +132,7 @@ If you're already using Spring and you don't need reactive support then this is 
 
 #### Dependencies
 
-{% include macros/eventstore/spring-blocking/maven.md %}
+{% include macros/eventstore/mongodb/spring/blocking/maven.md %}
 
 #### Getting Started
 
@@ -119,20 +142,22 @@ an `org.occurrent.eventstore.mongodb.spring.blocking.EventStoreConfig`.
 
 For example:  
 
-{% include macros/eventstore/spring-blocking/example-configuration.md %}
-
+{% include macros/eventstore/mongodb/spring/blocking/example-configuration.md %}
 
 Now you can start reading and writing events to the EventStore:
 
-{% include macros/eventstore/spring-blocking/read-and-write-events.md %}
+{% include macros/eventstore/mongodb/spring/blocking/read-and-write-events.md %}
 
 #### Examples
 
-| Name  | Description  | Link |
-|:---:|:--:-| :---:| 
-| Number Guessing Game | A simple game implemented using a pure domain model and stores events in MongoDB using `SpringBlockingMongoEventStore` and Spring Boot. It also generates integration events and publishes these to RabbitMQ. | [GitHub](https://github.com/johanhaleby/occurrent/tree/master/example/domain/number-guessing-game/mongodb/spring/blocking)|
+| Name  | Description  | 
+|:----|:-----|  
+| [Number&nbsp;Guessing&nbsp;Game](https://github.com/johanhaleby/occurrent/tree/master/example/domain/number-guessing-game/mongodb/spring/blocking) | A simple game implemented using a pure domain model and stores events in MongoDB using `SpringBlockingMongoEventStore` and Spring Boot. It also generates integration events and publishes these to RabbitMQ. |
+| [Subscription&nbsp;View](https://github.com/johanhaleby/occurrent/tree/master/example/projection/spring-subscription-based-mongodb-projections/src/main/java/org/occurrent/example/eventstore/mongodb/spring/subscriptionprojections) | An example showing how to create a subscription that listens to certain events stored in the EventStore and updates a view/projection from these events. |
+| [Transactional&nbsp;View](https://github.com/johanhaleby/occurrent/tree/master/example/projection/spring-transactional-projection-mongodb/src/main/java/org/occurrent/example/eventstore/mongodb/spring/transactional) | An example showing how to combine writing events to the `SpringBlockingMongoEventStore` and update a view transactionally using the `@Transactional` annotation. | 
+| [Custom&nbsp;Aggregation&nbsp;View](https://github.com/johanhaleby/occurrent/tree/master/example/projection/spring-adhoc-evenstore-mongodb-queries/src/main/java/org/occurrent/example/eventstore/mongodb/spring/projections/adhoc) | Example demonstrating that you can query the `SpringBlockingMongoEventStore` using custom MongoDB aggregations. |
 
-### Spring with ReactiveMongoTemplate
+### EventStore with Spring ReactiveMongoTemplate (Reactive)
   
 #### What is it?
 An implementation that uses Spring's [ReactiveMongoTemplate](https://docs.spring.io/spring-data/mongodb/docs/current/api/org/springframework/data/mongodb/core/ReactiveMongoTemplate.html)

@@ -1,11 +1,4 @@
-<div class="multitab-code dependencies" data-tab="1">
-<ul>
-    <li data-tab="1">Java</li>
-    <li data-tab="2">Kotlin</li>
-</ul>
-
-<div data-tab="1" markdown="1">
-~~~java
+{% capture java %}
 MongoClient mongoClient = MongoClients.create("mongodb://localhost:27017");
 MongoTransactionManager mongoTransactionManager = new MongoTransactionManager(new SimpleMongoClientDatabaseFactory(mongoClient, "database"));
 
@@ -19,11 +12,9 @@ EventStoreConfig eventStoreConfig = new EventStoreConfig.Builder()
                                                         .build();
 
 SpringBlockingMongoEventStore eventStore = new SpringBlockingMongoEventStore(mongoTemplate, eventStoreConfig);
-~~~
-</div>
+{% endcapture %}
 
-<div data-tab="2" markdown="1">
-~~~kotlin
+{% capture kotlin %}
 val mongoClient = MongoClients.create("mongodb://localhost:27017")
 val mongoTransactionManager = MongoTransactionManager(SimpleMongoClientDatabaseFactory(mongoClient, "database"))
 
@@ -37,6 +28,5 @@ val eventStoreConfig = EventStoreConfig.Builder()
                                        .build()
 
 val eventStore = SpringBlockingMongoEventStore(mongoTemplate, eventStoreConfig)
-~~~
-</div>
-</div>
+{% endcapture %}
+{% include macros/docsSnippet.html java=java kotlin=kotlin %}

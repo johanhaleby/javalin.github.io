@@ -1,11 +1,4 @@
-<div class="multitab-code dependencies" data-tab="1">
-<ul>
-    <li data-tab="1">Java</li>
-    <li data-tab="2">Kotlin</li>
-</ul>
-
-<div data-tab="1" markdown="1">
-~~~java
+{% capture java %}
 CloudEvent event = CloudEventBuilder.v1()
                     .withId("eventId")
                     .withSource("urn:mydomain")
@@ -21,11 +14,9 @@ eventStore.write("streamId", Stream.of(event));
 
 // Read
 EventStream<CloudEvent> eventStream = eventStore.read("streamId");
-~~~
-</div>
+{% endcapture %}
 
-<div data-tab="2" markdown="1">
-~~~kotlin
+{% capture kotlin %}
 val event = CloudEventBuilder.v1()
                     .withId("eventId")
                     .withSource("urn:mydomain")
@@ -41,6 +32,5 @@ eventStore.write("streamId", Stream.of(event))
 
 // Read
 val eventStream : EventStream<CloudEvent> = eventStore.read("streamId")
-~~~
-</div>
-</div>
+{% endcapture %}
+{% include macros/docsSnippet.html java=java kotlin=kotlin %}
