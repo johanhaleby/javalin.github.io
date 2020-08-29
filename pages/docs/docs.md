@@ -46,7 +46,7 @@ The documentation on this page is always for the latest version of Occurrent, cu
 <div class="comment">Occurrent is in an early stage so API's, and even the data model, are subject to change in the future.</div>
 
 Occurrent is an event sourcing library, or if you wish, a set of event sourcing utilities for the JVM, created by [Johan Haleby](https://code.haleby.se/).
-There are many options for doing event sourcing in Java already so why build something yourself? There are a few reasons for this besides the
+There are many options for doing event sourcing in Java already so why build another one? There are a few reasons for this besides the
 intrinsic joy of doing something yourself: 
  
 * You should be able to design your domain model without _any_ dependencies to Occurrent or any other library. Your domain model can be expressed with pure functions that returns events. Use Occurrent to store these events.
