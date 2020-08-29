@@ -8,6 +8,7 @@ permalink: /documentation
 {% include notificationBanner.html %}
 
 <div id="spy-nav" class="left-menu" markdown="1">
+* [Introduction](#introduction)
 * [Getting Started](#getting-started)
 * [Choosing An EventStore](#choosing-an-eventstore)
 * * [MongoDB](#mongodb)
@@ -33,6 +34,28 @@ The documentation on this page is always for the latest version of Occurrent, cu
             frameborder="0" scrolling="0" width="150px" height="30px">
     </iframe>
 </div>
+
+# Introduction
+
+Occurrent is an event sourcing library, or if you wish, a set of event sourcing utilities for the JVM, created by [Johan Haleby](https://code.haleby.se/).
+There are many options for doing event sourcing in Java already so why build something yourself? There are a few reasons for this besides the
+intrinsic joy of doing something yourself: 
+ 
+* You should be able to design your domain model without _any_ dependencies to Occurrent or any other library. Your domain model can be expressed with pure functions that returns events. Use Occurrent to store these events.
+  This is a very important design decision! Many people talk about doing this, but I find it rare in practise, and some existing event sourcing frameworks makes this difficult or non-idiomatic.
+* Simple: Pick only the libraries you need, no need for an all or nothing solution. If you don't need subscriptions, then don't use them!
+* Occurrent is not a database by itself. The goal is to be a thing wrapper around existing commodity databases that you may already be familiar with.  
+* Events are stored in a standard format ([cloud events](https://cloudevents.io/)). You are responsible for serializing/deserializing the cloud events "body" (data) yourself.
+  While this may seem like a limitation at first, why not just serialize your POJO directly to arbitrary JSON that you're used to, it really enables a lot of use cases and piece of mind. For example:
+  * It should be possible to hook in various standard components into Occurrent that understands cloud events. For example a component could visualize a distributed tracing graph from the cloud events
+    if using the [distributed tracing cloud event extension](https://github.com/cloudevents/spec/blob/master/extensions/distributed-tracing.md).
+  * Since the current idea is to be as close as possible to the specification even in the database,  
+    you can use the database to your advantage. For example, you can create custom indexes used for fast and fully consistent domain queries directly on an event stream (or even multiple streams).
+* Composable: Function composition and pipes are encouraged. For example pipe the event stream to a rehydration function (any function that converts a stream of events to current state) before calling your domain model.
+* Pragmatic: Need consistent projections? You can decide to write projections and events transactionally using tools you already know (such as Spring `@Transactional`)! 
+* Interopable/Portable: Cloud events is a [CNCF](https://www.cncf.io/) specification for describing event data in a common way. CloudEvents seeks to dramatically simplify event declaration and delivery across services, platforms, and beyond!
+* Use the Occurrent components as lego bricks to compose your own pipelines. Components are designed to be small so that you should be able to re-write them tailored to your own needs if required. 
+  Missing a component? You should be able to write one yourself and hook into the rest of the eco-system. Write your own problem/domain specific layer on-top of Occurrent.
 
 # Getting started
 
