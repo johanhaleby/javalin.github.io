@@ -25,8 +25,6 @@ permalink: /documentation
 * [Using Subscriptions](#using-subscriptions)
 * * [Blocking](#blocking-subscription)
 * * [Reactive](#reactive-subscription)
-* [HTTP Handlers](#handlers)
-* * [Before](#before-handlers)
 </div>
 
 <h1 class="no-margin-top">Documentation</h1>
@@ -290,92 +288,4 @@ Now you can start reading and writing events to the EventStore:
 ### Blocking Subscription
 
 
-### Reactive Subscription  
-
-## Handlers
-Occurrent has three main handler types: before-handlers, endpoint-handlers, and after-handlers.
-(There are also exception-handlers and error-handlers, but we'll get to them later).
-The before-, endpoint- and after-handlers require three parts:
-
-* A verb, one of: `before`, `get`, `post`, `put`, `patch`, `delete`, `after` <small>(... `head`, `options`, `trace`, `connect`)</small>
-* A path, ex: `/`, `/hello-world`, `/hello/:name`
-* A handler implementation `ctx -> { ... }`
-
-The `Handler` interface has a void return type. You use `ctx.result()` to set the response which will be returned to the user.
-
-### Before handlers
-Before-handlers are matched before every request (including static files, if you enable those).
-<div class="comment">You might know before-handlers as filters, interceptors, or middleware from other libraries.</div>
-
-{% capture java %}
-app.before(ctx -> {
-    // runs before all requests
-});
-app.before("/path/*", ctx -> {
-    // runs before request to /path/*
-});
-{% endcapture %}
-{% capture kotlin %}
-app.before { ctx ->
-    // runs before all requests
-}
-app.before("/path/*") { ctx ->
-    // runs before request to /path/*
-}
-{% endcapture %}
-{% include macros/docsSnippet.html java=java kotlin=kotlin %}
-
-### Endpoint handlers
-Endpoint-handlers are matched in the order they are defined.
-<div class="comment">You might know endpoint-handlers as routes or middleware from other libraries.</div>
-
-{% capture java %}
-app.get("/", ctx -> {
-    // some code
-    ctx.json(object);
-});
-
-app.post("/", ctx -> {
-    // some code
-    ctx.status(201);
-});
-{% endcapture %}
-{% capture kotlin %}
-app.get("/") { ctx ->
-    // some code
-    ctx.json(object)
-}
-
-app.post("/") { ctx ->
-    // some code
-    ctx.status(201)
-}
-{% endcapture %}
-{% include macros/docsSnippet.html java=java kotlin=kotlin %}
-
-Handler paths can include path-parameters. These are available via `ctx.pathParam("key")`:
-{% capture java %}
-app.get("/hello/:name", ctx -> {
-    ctx.result("Hello: " + ctx.pathParam("name"));
-});
-{% endcapture %}
-{% capture kotlin %}
-app.get("/hello/:name") { ctx ->
-    ctx.result("Hello: " + ctx.pathParam("name"))
-}
-{% endcapture %}
-{% include macros/docsSnippet.html java=java kotlin=kotlin %}
-
-Handler-paths can also include wildcard parameters, which are like unnamed path-parameters:
-
-{% capture java %}
-app.get("/hello/*", ctx -> {
-    // capture all request to sub-paths of /hello/
-});
-{% endcapture %}
-{% capture kotlin %}
-app.get("/hello/*") { ctx ->
-    // capture all request to sub-paths of /hello/
-}
-{% endcapture %}
-{% include macros/docsSnippet.html java=java kotlin=kotlin %}
+### Reactive Subscription
