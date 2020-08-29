@@ -79,6 +79,10 @@ document.addEventListener("click", function (e) {
         document.querySelectorAll(".multitab-code:not(.dependencies)").forEach(multitab => {
             multitab.setAttribute("data-tab", targetTab);
         });
+    } else {
+        document.querySelectorAll(".multitab-code.dependencies").forEach(multitab => {
+            multitab.setAttribute("data-tab", targetTab);
+        });
     }
 });
 
