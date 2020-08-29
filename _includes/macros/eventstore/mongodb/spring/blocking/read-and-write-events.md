@@ -1,7 +1,7 @@
 {% capture java %}
 CloudEvent event = CloudEventBuilder.v1()
                     .withId("eventId")
-                    .withSource("urn:mydomain")
+                    .withSource(URI.create("urn:mydomain"))
                     .withType("HelloWorld")
                     .withTime(LocalDateTime.now().atZone(ZoneOffset.UTC))
                     .withSubject("subject")
@@ -19,7 +19,7 @@ EventStream<CloudEvent> eventStream = eventStore.read("streamId");
 {% capture kotlin %}
 val event = CloudEventBuilder.v1()
                     .withId("eventId")
-                    .withSource("urn:mydomain")
+                    .withSource(URI.create("urn:mydomain"))
                     .withType("HelloWorld")
                     .withTime(LocalDateTime.now().atZone(ZoneOffset.UTC))
                     .withSubject("subject")

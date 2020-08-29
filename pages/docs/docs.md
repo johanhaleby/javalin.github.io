@@ -9,6 +9,12 @@ permalink: /documentation
 
 <div id="spy-nav" class="left-menu" markdown="1">
 * [Introduction](#introduction)
+* [Concepts](#concepts)
+* * [EventStore](#eventstore)
+* * [Subscriptions](#subscriptions)
+* * [Views](#views)
+* * [Command Bus?](#command-bus)
+* * [Sagas?](#sagas)
 * [Getting Started](#getting-started)
 * [Choosing An EventStore](#choosing-an-eventstore)
 * * [MongoDB](#mongodb)
@@ -36,6 +42,7 @@ The documentation on this page is always for the latest version of Occurrent, cu
 </div>
 
 # Introduction
+<div class="comment">Occurrent is in an early stage so API's, and even the data model, are subject to change in the future.</div>
 
 Occurrent is an event sourcing library, or if you wish, a set of event sourcing utilities for the JVM, created by [Johan Haleby](https://code.haleby.se/).
 There are many options for doing event sourcing in Java already so why build something yourself? There are a few reasons for this besides the
@@ -43,7 +50,8 @@ intrinsic joy of doing something yourself:
  
 * You should be able to design your domain model without _any_ dependencies to Occurrent or any other library. Your domain model can be expressed with pure functions that returns events. Use Occurrent to store these events.
   This is a very important design decision! Many people talk about doing this, but I find it rare in practise, and some existing event sourcing frameworks makes this difficult or non-idiomatic.
-* Simple: Pick only the libraries you need, no need for an all or nothing solution. If you don't need subscriptions, then don't use them!
+* Simple: Pick only the libraries you need, no need for an all or nothing solution. If you don't need subscriptions, then don't use them! Use the infrastructure 
+  that you already have and hook these into Occurrent.
 * Occurrent is not a database by itself. The goal is to be a thing wrapper around existing commodity databases that you may already be familiar with.  
 * Events are stored in a standard format ([cloud events](https://cloudevents.io/)). You are responsible for serializing/deserializing the cloud events "body" (data) yourself.
   While this may seem like a limitation at first, why not just serialize your POJO directly to arbitrary JSON that you're used to, it really enables a lot of use cases and piece of mind. For example:
@@ -56,6 +64,74 @@ intrinsic joy of doing something yourself:
 * Interopable/Portable: Cloud events is a [CNCF](https://www.cncf.io/) specification for describing event data in a common way. CloudEvents seeks to dramatically simplify event declaration and delivery across services, platforms, and beyond!
 * Use the Occurrent components as lego bricks to compose your own pipelines. Components are designed to be small so that you should be able to re-write them tailored to your own needs if required. 
   Missing a component? You should be able to write one yourself and hook into the rest of the eco-system. Write your own problem/domain specific layer on-top of Occurrent.
+
+# Concepts
+
+## EventStore
+
+The event store is a place where you store events. Events are immutable pieces of data describing state changes for a particular stream. 
+A stream is a collection of events that are related, typically but not limited to, a particular entity. For example a stream may include all events for a particular instance of a game or an order.
+
+Occurrent provides an interface, `EventStore`, that allows to read and write events from the database. The `EventStore` interface actually is
+composed of various smaller interfaces since not all databases supports all aspects provided by the `EventStore` interface. Here's an example 
+that writes a cloud event to the event store and read it back: 
+
+{% include macros/eventstore/mongodb/native/read-and-write-events.md %}
+
+Note that when reading the events, the `EventStore` won't simply return a `Stream` of `CloudEvent`'s, instead it returns a wrapper called `EventStream`.
+TODO Describe this            
+
+Since Occurrent builds on-top of existing databases it's ok, given that you know what you're doing<span>&#42;</span>, to use the strengths of these databases.
+One such strength is that typically databases have good querying support. Occurrent exposes this using the `EventStoreQueries` interface
+that an `EventStore` implementation may implement to expose querying capabilities. For example:
+
+{% capture java %}
+ZonedDateTime lastTwoHours = ZonedDateTime.now().minusHours(2); 
+// Query the database for all events the last two hours that have "subject" equal to "123" and sort these in descending order
+Stream<CloudEvent> events = eventStore.query(time(lte(lastTwoHours)).and(subject("123")), SortBy.TIME_DESC);
+{% endcapture %}
+{% capture kotlin %}
+val lastTwoHours = ZonedDateTime.now().minusHours(2);
+// Query the database for all events the last two hours that have "subject" equal to "123" and sort these in descending order
+val events : Stream<CloudEvent> = eventStore.query(time(lte(lastTwoHours)).and(subject("123")), SortBy.TIME_DESC)
+{% endcapture %}
+{% include macros/docsSnippet.html java=java kotlin=kotlin %}
+
+<div class="comment"><span>&#42;</span>You must trade-off when it's appropriate to query the database vs creating materialized views/projections as well as creating indexes to allow for fast queries.</div>
+
+`EventStoreQueries` is not bound to a particular stream, rather you can query _any_ stream (or multiple streams at the same time). 
+It also provides the ability to get an "all" stream:
+  
+{% capture java %}
+// Return all events in an event store sorted by descending order
+Stream<CloudEvent> events = eventStore.all(SortBy.TIME_DESC);
+{% endcapture %}
+{% capture kotlin %}
+// Return all events in an event store sorted by descending order
+val events : Stream<CloudEvent> = eventStore.all(SortBy.TIME_DESC)
+{% endcapture %}
+{% include macros/docsSnippet.html java=java kotlin=kotlin %}    
+
+The `EventStoreQueries` interface also supports skip and limit capabilities which allows for pagination:
+
+{% capture java %}
+// Skip 42, limit 1024
+Stream<CloudEvent> events = eventStore.all(42, 1024);
+{% endcapture %}
+{% capture kotlin %}
+// Skip 42, limit 1024
+val events : Stream<CloudEvent> = eventStore.all(42, 1024)
+{% endcapture %}
+{% include macros/docsSnippet.html java=java kotlin=kotlin %}    
+
+
+## Subscriptions
+
+## Views
+
+## Command Bus?
+
+## Sagas?
 
 # Getting started
 
@@ -78,7 +154,7 @@ There are currently two different datastores to choose from, [MongoDB](#mongodb)
 
 Uses MongoDB, version 4.2 or above, as  the underlying datastore for the CloudEvents. All implementations use transactions to guarantee consistent writes (see WriteCondition).
 Each EventStore will automatically create a few indexes (TODO describe these) on startup to allow for fast consistent writes, optimistic concurrency and to avoid duplicated events.
-These indexes can also be used in queries against the EventStore (see EventStoreQueries). 
+These indexes can also be used in queries against the EventStore (see EventStoreQueries). (TODO Also suggest wildcard indexes if `EventStoreQueries` is used)  
  
 There are three different MongoDB EventStore implementations to choose from:
 * [Native Driver](#eventstore-with-mongodb-native-driver)
