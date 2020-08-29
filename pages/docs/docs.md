@@ -22,6 +22,9 @@ permalink: /documentation
 * * * [Spring (Blocking)](#eventstore-with-spring-mongotemplate-blocking) 
 * * * [Spring (Reactive)](#eventstore-with-spring-reactivemongotemplate-reactive) 
 * * [In-Memory](#in-memory)
+* [Using Subscriptions](#using-subscriptions)
+* * [Blocking](#blocking-subscription)
+* * [Reactive](#reactive-subscription)
 * [HTTP Handlers](#handlers)
 * * [Before](#before-handlers)
 </div>
@@ -97,7 +100,7 @@ val events : Stream<CloudEvent> = eventStore.query(time(lte(lastTwoHours)).and(s
 {% endcapture %}
 {% include macros/docsSnippet.html java=java kotlin=kotlin %}
 
-<div class="comment"><span>&#42;</span>You must trade-off when it's appropriate to query the database vs creating materialized views/projections as well as creating indexes to allow for fast queries.</div>
+<div class="comment"><span>&#42;</span>There's a trade-off when it's appropriate to query the database vs creating materialized views/projections and you should most likely create indexes to allow for fast queries.</div>
 
 `EventStoreQueries` is not bound to a particular stream, rather you can query _any_ stream (or multiple streams at the same time). 
 It also provides the ability to get an "all" stream:
@@ -124,8 +127,24 @@ val events : Stream<CloudEvent> = eventStore.all(42, 1024)
 {% endcapture %}
 {% include macros/docsSnippet.html java=java kotlin=kotlin %}    
 
+To get started with an event store refer to [Choosing An EventStore](#choosing-an-eventstore).
 
 ## Subscriptions
+
+A subscription is a way get notified when new events are written to an event store. Typically, a subscription will forward the event to another piece of infrastructure such as
+a message bus, or to create views from the events (such as projections, sagas, snapshots etc). There are two different kinds of API's, the first one is a blocking 
+API represented by the `BlockingSubscription` interface (in the `org.occurrent:subscription-api-blocking` module), and second one is a reactive API 
+represented by the `ReactorSubscription` interface (in the `org.occurrent:subscription-api-reactor` module). 
+
+
+The blocking API is callback based, which is fine if you're working with individual events (you can of course write a simple function that aggregates events into batches).
+If you want to work with streams of data, the `ReactorSubscription` is probably a better option since it's using the [Flux](https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Flux.html)
+publisher from [project reactor](https://projectreactor.io/).
+
+Note that it's fine to use `ReactorSubscription` for subscriptions, even though the event store is implemented using the blocking api, and vice versa.
+If the datastore allows it, you can also run subscriptions in a different process from the datastore.   
+
+To get started with subscriptions refer to [Using Subscriptions](#using-subscriptions).
 
 ## Views
 
@@ -264,6 +283,14 @@ Now you can start reading and writing events to the EventStore:
 | Name  | Description  | 
 |:----|:-----|  
 | [Custom&nbsp;Aggregation&nbsp;View](https://github.com/johanhaleby/occurrent/tree/master/example/projection/spring-adhoc-evenstore-mongodb-queries/src/main/java/org/occurrent/example/eventstore/mongodb/spring/projections/adhoc) | Example demonstrating that you can query the `SpringBlockingMongoEventStore` using custom MongoDB aggregations. |
+
+# Using Subscriptions
+<div class="comment">Before you start using subscriptions you should read up on what they are <a href="#subscriptions">here</a>.</div>
+
+### Blocking Subscription
+
+
+### Reactive Subscription  
 
 ## Handlers
 Occurrent has three main handler types: before-handlers, endpoint-handlers, and after-handlers.
