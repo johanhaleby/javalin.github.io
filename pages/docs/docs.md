@@ -10,7 +10,11 @@ permalink: /documentation
 <div id="spy-nav" class="left-menu" markdown="1">
 * [Introduction](#introduction)
 * [Concepts](#concepts)
+* * [Event Sourcing](#event-sourcing)
 * * [EventStore](#eventstore)
+* * * [EventStream](#eventstream)
+* * * [WriteCondition](#write-condition)
+* * * [Queries](#eventstore-queries)
 * * [Subscriptions](#subscriptions)
 * * [Views](#views)
 * * [Command Bus?](#command-bus)
@@ -68,9 +72,17 @@ intrinsic joy of doing something yourself:
 
 # Concepts
 
+## Event Sourcing
+
+Every system needs to store and update data somehow. Many times this is done by storing the _current_ state of an entity in the database.
+For example, you might have an entity called `Order` stored in a `order` table in a relational database. Everytime something happens
+to the order, the table is updated with the new information and replacing the previous values. Event Sourcing is a technique that instead stores
+the _changes_, represented by _events_, that occurred for the entity. Events are facts, things that have happened, and they should never be updated. 
+This means that not only can you derive the current state from previous events, but you also know _which_ steps that were involved to reach the current state. 
+
 ## EventStore
 
-The event store is a place where you store events. Events are immutable pieces of data describing state changes for a particular stream. 
+The event store is a place where you store events. Events are immutable pieces of data describing state changes for a particular _stream_. 
 A stream is a collection of events that are related, typically but not limited to, a particular entity. For example a stream may include all events for a particular instance of a game or an order.
 
 Occurrent provides an interface, `EventStore`, that allows to read and write events from the database. The `EventStore` interface actually is
@@ -80,7 +92,137 @@ that writes a cloud event to the event store and read it back:
 {% include macros/eventstore/mongodb/native/read-and-write-events.md %}
 
 Note that when reading the events, the `EventStore` won't simply return a `Stream` of `CloudEvent`'s, instead it returns a wrapper called `EventStream`.
-TODO Describe this            
+
+### EventStream            
+
+The `EventStream` contains the `CloudEvent`'s for a stream and the version of the stream. The version can be used to guarantee that only one 
+thread/process is allowed to write to the stream at the same time, i.e. optimistic locking. This can be achieved by including the version in a [write condition](#write-condition).
+
+### Write Condition
+
+A "write condition" can be used to specify conditional writes to the event store. Typically, the purpose of this would be to achieve [optimistic locking](https://en.wikipedia.org/wiki/Optimistic_concurrency_control) of an event stream.
+For example, image you have an `Account` to which you can deposit and withdraw money. A business rule says that it's not allowed to have a negative balance on an account.
+Now imagine an account that is shared between two persons and contains 20 EUR. Person "A" wants to withdraw 15 EUR and person "B" wants to withdraw 10 EUR. 
+If they try to do this, an error message should be presented to one of them since the account balance would be negative. But what happens if both persons try to withdraw
+the money at the same time? Let's have a look:
+
+{% capture java %}
+// Person A at _time 1_
+EventStream<CloudEvent> eventStream = eventStore.read("account1"); // A
+
+// "withdraw" is a pure function in the Account domain model which takes a Stream
+//  of all current events and to amount to withdraw, and returns new events. 
+// In this case, a "MoneyWasWithdrawn" event is returned,  since 15 EUR is OK to withdraw.     
+Stream<CloudEvent> events = Account.withdraw(eventStream.events(), Money.of(15, EUR));
+
+// We write the new events to the event store  
+eventStore.write("account1", events);
+
+// Now in a different thread let's imagine Person B at _time 1_
+EventStream<CloudEvent> eventStream = eventStore.read("account1"); // B
+
+// Again we want to withdraw money, and the system will think this is OK, 
+// since event streams for A and B has not yet recorded that the balance is negative.   
+Stream<CloudEvent> events = Account.withdraw(eventStream.events(), Money.of(10, EUR));
+
+// We write the new events to the event store without any problems! 😱 
+// But this shouldn't work since it would violate the business rule!   
+eventStore.write("account1", events);
+{% endcapture %}
+{% capture kotlin %}
+// Person A at _time 1_
+val eventStream = eventStore.read("account1") // A
+
+// "withdraw" is a pure function in the Account domain model which takes a Stream
+//  of all current events and to amount to withdraw, and returns new events. 
+// In this case, a "MoneyWasWithdrawn" event is returned,  since 15 EUR is OK to withdraw.     
+val events = Account.withdraw(eventStream.events(), Money.of(15, EUR))
+
+// We write the new events to the event store  
+eventStore.write("account1", events)
+
+// Now in a different thread let's imagine Person B at _time 1_
+val eventStream = eventStore.read("account1") // B
+
+// Again we want to withdraw money, and the system will think this is OK, 
+// since event streams for A and B has not yet recorded that the balance is negative.   
+val events = Account.withdraw(eventStream.events(), Money.of(10, EUR))
+
+// We write the new events to the event store without any problems! 😱 
+// But this shouldn't work since it would violate the business rule!   
+eventStore.write("account1", events)
+{% endcapture %}
+{% include macros/docsSnippet.html java=java kotlin=kotlin %}
+
+<div class="comment">Note that typically the domain model, Account in this example, would not return CloudEvents but rather a stream or list of a custom data structure, domain events, that would then be <i>converted</i> to CloudEvent's. 
+This is not shown in the example above for brevity.</div>
+
+To avoid the problem above we want to make use of conditional writes. Let's see how:
+
+{% capture java %}
+// Person A at _time 1_
+EventStream<CloudEvent> eventStream = eventStore.read("account1"); // A
+long currentVersion = eventStream.version(); 
+
+// Withdraw money
+Stream<CloudEvent> events = Account.withdraw(eventStream.events(), Money.of(15, EUR));
+
+// We write the new events to the event store with a write condition that implies
+// that the version of the event stream must be A.   
+eventStore.write("account1", currentVersion, events);
+
+// Now in a different thread let's imagine Person B at _time 1_
+EventStream<CloudEvent> eventStream = eventStore.read("account1"); // A 
+long currentVersion = eventStream.version();
+
+// Again we want to withdraw money, and the system will think this is OK, 
+// since event streams for A and B has not yet recorded that the balance is negative.   
+Stream<CloudEvent> events = Account.withdraw(eventStream.events(), Money.of(10, EUR));
+
+// We write the new events to the event store with a write condition that implies
+// that the version of the event stream must be B. But now Occurrent will throw
+// a "org.occurrent.eventstore.api.WriteConditionNotFulfilledException" since, in this
+// case A was slightly faster, and the version of the event stream no longer match!
+// The entire operation should be retried for person B and when "Account.withdraw(..)"
+// is called again it could throw a "CannotWithdrawSinceBalanceWouldBeNegative" exception. 
+eventStore.write("account1", currentVersion, events); 
+{% endcapture %}
+{% capture kotlin %}
+// Person A at _time 1_
+val eventStream = eventStore.read("account1") // A
+val currentVersion = eventStream.version() 
+
+// Withdraw money
+val events = Account.withdraw(eventStream.events(), Money.of(15, EUR));
+
+// We write the new events to the event store with a write condition that implies
+// that the version of the event stream must be A.   
+eventStore.write("account1", currentVersion, events)
+
+// Now in a different thread let's imagine Person B at _time 1_
+val eventStream = eventStore.read("account1"); // A 
+val currentVersion = eventStream.version()
+
+// Again we want to withdraw money, and the system will think this is OK, 
+// since event streams for A and B has not yet recorded that the balance is negative.   
+val events = Account.withdraw(eventStream.events(), Money.of(10, EUR))
+
+// We write the new events to the event store with a write condition that implies
+// that the version of the event stream must be B. But now Occurrent will throw
+// a "org.occurrent.eventstore.api.WriteConditionNotFulfilledException" since, in this
+// case A was slightly faster, and the version of the event stream no longer match!
+// The entire operation should be retried for person B and when "Account.withdraw(..)"
+// is called again it could throw a "CannotWithdrawSinceBalanceWouldBeNegative" exception. 
+eventStore.write("account1", currentVersion, events) 
+
+{% endcapture %}
+{% include macros/docsSnippet.html java=java kotlin=kotlin %}
+       
+// TODO Show a more complex WriteCondition       
+       
+Note that reading from a stream that doesn't exist will return `0` as version number.            
+
+### EventStore Queries
 
 Since Occurrent builds on-top of existing databases it's ok, given that you know what you're doing<span>&#42;</span>, to use the strengths of these databases.
 One such strength is that typically databases have good querying support. Occurrent exposes this using the `EventStoreQueries` interface
