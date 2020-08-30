@@ -49,7 +49,7 @@ The documentation on this page is always for the latest version of Occurrent, cu
 # Introduction
 <div class="comment">Occurrent is in an early stage so API's, and even the data model, are subject to change in the future.</div>
 
-Occurrent is an event sourcing library, or if you wish, a set of event sourcing utilities for the JVM, created by [Johan Haleby](https://code.haleby.se/).
+Occurrent is an [event sourcing](#event-sourcing) library, or if you wish, a set of event sourcing utilities for the JVM, created by [Johan Haleby](https://code.haleby.se/).
 There are many options for doing event sourcing in Java already so why build another one? There are a few reasons for this besides the
 intrinsic joy of doing something yourself: 
  
@@ -78,7 +78,8 @@ Every system needs to store and update data somehow. Many times this is done by 
 For example, you might have an entity called `Order` stored in a `order` table in a relational database. Everytime something happens
 to the order, the table is updated with the new information and replacing the previous values. Event Sourcing is a technique that instead stores
 the _changes_, represented by _events_, that occurred for the entity. Events are facts, things that have happened, and they should never be updated. 
-This means that not only can you derive the current state from previous events, but you also know _which_ steps that were involved to reach the current state. 
+This means that not only can you derive the current state from the set of historic events, but you also know _which_ steps that were involved to reach 
+the current state. 
 
 ## EventStore
 
@@ -101,6 +102,7 @@ thread/process is allowed to write to the stream at the same time, i.e. optimist
 ### Write Condition
 
 A "write condition" can be used to specify conditional writes to the event store. Typically, the purpose of this would be to achieve [optimistic locking](https://en.wikipedia.org/wiki/Optimistic_concurrency_control) of an event stream.
+
 For example, image you have an `Account` to which you can deposit and withdraw money. A business rule says that it's not allowed to have a negative balance on an account.
 Now imagine an account that is shared between two persons and contains 20 EUR. Person "A" wants to withdraw 15 EUR and person "B" wants to withdraw 10 EUR. 
 If they try to do this, an error message should be presented to one of them since the account balance would be negative. But what happens if both persons try to withdraw
@@ -111,7 +113,7 @@ the money at the same time? Let's have a look:
 EventStream<CloudEvent> eventStream = eventStore.read("account1"); // A
 
 // "withdraw" is a pure function in the Account domain model which takes a Stream
-//  of all current events and to amount to withdraw, and returns new events. 
+//  of all current events and the amount to withdraw, and returns new events. 
 // In this case, a "MoneyWasWithdrawn" event is returned,  since 15 EUR is OK to withdraw.     
 Stream<CloudEvent> events = Account.withdraw(eventStream.events(), Money.of(15, EUR));
 
@@ -134,8 +136,8 @@ eventStore.write("account1", events);
 val eventStream = eventStore.read("account1") // A
 
 // "withdraw" is a pure function in the Account domain model which takes a Stream
-//  of all current events and to amount to withdraw, and returns new events. 
-// In this case, a "MoneyWasWithdrawn" event is returned,  since 15 EUR is OK to withdraw.     
+//  of all current events and the amount to withdraw. It returns a stream of 
+// new events, in this case only a "MoneyWasWithdrawn" event,  since 15 EUR is OK to withdraw.     
 val events = Account.withdraw(eventStream.events(), Money.of(15, EUR))
 
 // We write the new events to the event store  
@@ -145,7 +147,8 @@ eventStore.write("account1", events)
 val eventStream = eventStore.read("account1") // B
 
 // Again we want to withdraw money, and the system will think this is OK, 
-// since event streams for A and B has not yet recorded that the balance is negative.   
+// since the Account thinks that 10 EUR will have a balance of 10 EUR after 
+// the withdrawal.   
 val events = Account.withdraw(eventStream.events(), Money.of(10, EUR))
 
 // We write the new events to the event store without any problems! 😱 
@@ -218,7 +221,30 @@ eventStore.write("account1", currentVersion, events)
 {% endcapture %}
 {% include macros/docsSnippet.html java=java kotlin=kotlin %}
        
-// TODO Show a more complex WriteCondition       
+What you've seen above is a simple, but widely used, form of write condition. Actually, doing `eventStore.write("streamId", version, events)` 
+is just a shortcut for: 
+
+{% capture java %}
+eventStore.write("streamId", WriteCondition.streamVersionEq(version), events);
+{% endcapture %}
+{% capture kotlin %}
+eventStore.write("streamId", WriteCondition.streamVersionEq(version), events)
+{% endcapture %}
+{% include macros/docsSnippet.html java=java kotlin=kotlin %}
+ 
+<div class="comment">WriteCondition can be imported from "org.occurrent.eventstore.api.WriteCondition".</div>
+
+But you can compose a more advanced write condition using a `Condition`:
+
+{% capture java %}
+eventStore.write("streamId", WriteCondition.streamVersion(and(lt(10), ne(5)), events);
+{% endcapture %}
+{% capture kotlin %}
+eventStore.write("streamId", WriteCondition.streamVersion(and(lt(10), ne(5)), events)
+{% endcapture %}
+{% include macros/docsSnippet.html java=java kotlin=kotlin %}
+ 
+where `lt`, `ne` and `and` is statically imported from `org.occurrent.condition.Condition`.           
        
 Note that reading from a stream that doesn't exist will return `0` as version number.            
 
@@ -241,6 +267,8 @@ val events : Stream<CloudEvent> = eventStore.query(time(lte(lastTwoHours)).and(s
 {% include macros/docsSnippet.html java=java kotlin=kotlin %}
 
 <div class="comment"><span>&#42;</span>There's a trade-off when it's appropriate to query the database vs creating materialized views/projections and you should most likely create indexes to allow for fast queries.</div>
+
+The `time` and `subject`  methods are statically imported from `org.occurrent.filter.Filter` and `lte` is statically imported from `org.occurrent.condition.Condition`.  
 
 `EventStoreQueries` is not bound to a particular stream, rather you can query _any_ stream (or multiple streams at the same time). 
 It also provides the ability to get an "all" stream:
