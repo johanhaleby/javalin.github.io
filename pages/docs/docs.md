@@ -86,7 +86,7 @@ the current state.
 The event store is a place where you store events. Events are immutable pieces of data describing state changes for a particular _stream_. 
 A stream is a collection of events that are related, typically but not limited to, a particular entity. For example a stream may include all events for a particular instance of a game or an order.
 
-Occurrent provides an interface, `EventStore`, that allows to read and write events from the database. The `EventStore` interface actually is
+Occurrent provides an interface, `EventStore`, that allows to read and write events from the database. The `EventStore` interface is actually
 composed of various smaller interfaces since not all databases supports all aspects provided by the `EventStore` interface. Here's an example 
 that writes a cloud event to the event store and read it back: 
 
@@ -251,7 +251,7 @@ Note that reading from a stream that doesn't exist will return `0` as version nu
 ### EventStore Queries
 
 Since Occurrent builds on-top of existing databases it's ok, given that you know what you're doing<span>&#42;</span>, to use the strengths of these databases.
-One such strength is that typically databases have good querying support. Occurrent exposes this using the `EventStoreQueries` interface
+One such strength is that typically databases have good querying support. Occurrent exposes this with the `EventStoreQueries` interface
 that an `EventStore` implementation may implement to expose querying capabilities. For example:
 
 {% capture java %}
@@ -309,8 +309,8 @@ The blocking API is callback based, which is fine if you're working with individ
 If you want to work with streams of data, the `ReactorSubscription` is probably a better option since it's using the [Flux](https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Flux.html)
 publisher from [project reactor](https://projectreactor.io/).
 
-Note that it's fine to use `ReactorSubscription` for subscriptions, even though the event store is implemented using the blocking api, and vice versa.
-If the datastore allows it, you can also run subscriptions in a different process from the datastore.   
+Note that it's fine to use `ReactorSubscription`, even though the event store is implemented using the blocking api, and vice versa.
+If the datastore allows it, you can also run subscriptions in a different process than the processes reading and writing to the event store.   
 
 To get started with subscriptions refer to [Using Subscriptions](#using-subscriptions).
 
@@ -327,7 +327,7 @@ Getting started with Occurrent involves these steps:
 
 1. Choose an underlying datastore for an [event store](#choosing-an-eventstore). Luckily there are only two choices at the moment, MongoDB and an in-memory implementation. Hopefully this will be a more difficult decision in the future :)
 1. Once a datastore has been decided it's time to [choose an EventStore implementation](#choosing-an-eventstore) for this datastore since there may be more than one.
-1. If you need subscriptions (i.e. the ability to subscribe to changes from an EventStore) then you need to pick a library that implements this for the datastore that you've chosen. 
+1. If you need [subscriptions](#using-subscriptions) (i.e. the ability to subscribe to changes from an EventStore) then you need to pick a library that implements this for the datastore that you've chosen. 
    Again, there may be several implementations to choose from.
 1. If a subscriber needs to be able to continue from where it left off on application restart, it's worth looking into a so called "position storage" library. 
    These libraries provide means to automatically (or selectively) store the position for a subscriber to a datastore. Note that the datastore that stores this position
@@ -339,9 +339,9 @@ There are currently two different datastores to choose from, [MongoDB](#mongodb)
 
 ## MongoDB
 
-Uses MongoDB, version 4.2 or above, as  the underlying datastore for the CloudEvents. All implementations use transactions to guarantee consistent writes (see WriteCondition).
-Each EventStore will automatically create a few indexes (TODO describe these) on startup to allow for fast consistent writes, optimistic concurrency and to avoid duplicated events.
-These indexes can also be used in queries against the EventStore (see EventStoreQueries). (TODO Also suggest wildcard indexes if `EventStoreQueries` is used)  
+Uses MongoDB, version 4.2 or above, as  the underlying datastore for the CloudEvents. All implementations use transactions to guarantee consistent writes (see [WriteCondition](#write-condition)).
+Each EventStore will automatically create a few indexes (TODO describe these) on startup to allow for fast consistent writes, optimistic concurrency control and to avoid duplicated events.
+These indexes can also be used in queries against the EventStore (see [EventStoreQueries](#eventstore-queries))). (TODO Also suggest wildcard indexes if `EventStoreQueries` is used)  
  
 There are three different MongoDB EventStore implementations to choose from:
 * [Native Driver](#eventstore-with-mongodb-native-driver)
