@@ -99,9 +99,117 @@ Note that when reading the events, the `EventStore` won't simply return a `Strea
 The `EventStream` contains the `CloudEvent`'s for a stream and the version of the stream. The version can be used to guarantee that only one 
 thread/process is allowed to write to the stream at the same time, i.e. optimistic locking. This can be achieved by including the version in a [write condition](#write-condition).
 
+Note that reading a stream that doesn't exist (e.g. `eventStore.read("non-existing-id")` will return an instance of `EventStream` with an empty stream of events and `0` as version number. 
+The reason for this is that you can use the same "application service" (a fancy word for a piece of code that loads events from the event store, applies them to the domain model and writes the new events returned to the event store) 
+for both entity creation and subsequent use cases. For example consider this simple domain model:
+
+{% capture java %}
+public class WordGame {
+	public static Stream<CloudEvent> startNewGame(String gameId, String wordToGuess) {	
+		...
+	}
+
+	public static Stream<CloudEvent> guessWord(Stream<CloudEvent> eventStream, String word) {
+		...
+	}
+}
+{% endcapture %}  
+{% capture kotlin %}
+ object WordGame {
+    fun startNewGame(gameId : String, wordToGuess : String) : Stream<CloudEvent> = ...	
+ 
+    fun guessWord(eventStream : Stream<CloudEvent>, word : String) : Stream<CloudEvent> = ...
+ }
+{% endcapture %}
+{% include macros/docsSnippet.html java=java kotlin=kotlin %}
+ 
+Then we could write a generic application service that takes a higher-order function `(Stream<CloudEvent>) -> Stream<CloudEvent>`:
+
+{% capture java %}
+public class ApplicationService {
+
+    private final EventStore eventStore;
+
+    public ApplicationService(EventStore eventStore) {
+        this.eventStore = eventStore;
+    }
+
+    public void runUseCase(String streamId, Function<Stream<CloudEvent>, Stream<CloudEvent>> functionThatCallsDomainModel) {
+        // Read all events from the event store for a particular stream
+        EventStream<CloudEvent> eventStream = eventStore.read(streamId);
+
+        // Invoke the domain model  
+        Stream<CloudEvent> newEvents = functionThatCallsDomainModel.apply(eventStream.events());
+
+        // Persist the new events  
+        eventStore.write(streamId, eventStream.version(), newEvents);
+    }
+}
+{% endcapture %}
+{% capture kotlin %}
+class ApplicationService constructor (val eventStore : EventStore) {
+
+    fun runUseCase(streamId : String, functionThatCallsDomainModel : (Stream<CloudEvent>) -> Stream<CloudEvent>) {
+        // Read all events from the event store for a particular stream
+        val  eventStream : EventStream<CloudEvent> = eventStore.read(streamId)
+        
+         // Invoke the domain model 
+        val newEvents = functionThatCallsDomainModel(eventStream.events())
+
+        // Persist the new events
+        eventStore.write(streamId, eventStream.version(), newEvents)
+    }
+}
+{% endcapture %}
+{% include macros/docsSnippet.html java=java kotlin=kotlin %}
+<div class="comment">Note that typically the domain model, WordGame in this example, would not return CloudEvents but rather a stream or list of a custom data structure, domain events, that would then be <i>converted</i> to CloudEvent's. 
+This is not shown in this example above for brevity.</div>
+
+You could then call the application service like this regardless if you're starting a new game or not:
+
+{% capture java %}
+// Here we image that we have received the data required to start a new game, e.g. from a REST endpoint. 
+String gameId = ...
+String wordToGuess = ...;
+
+// Then we invoke the application service to start a game:
+applicationService.runUseCase(gameId, __ -> WordGame.startNewGame(gameId, wordToGuess));  
+
+// Later a player guess a word:
+String gameId = ...
+String guess = ...;
+
+// We thus invoke the application service again to guess the word:
+applicationService.runUseCase(gameId, events -> WordGame.guessWord(events, gameId, guess));
+{% endcapture %}
+{% capture kotlin %}
+// Here we image that we have received the data required to start a new game, e.g. from a REST endpoint. 
+val gameId : String = ...
+val wordToGuess : String = ...;
+
+// Then we invoke the application service to start a game:
+applicationService.runUseCase(gameId) { 
+    WordGame.startNewGame(gameId, wordToGuess)
+}  
+
+// Later a player guess a word:
+val gameId : String = ...
+val guess : String = ...;
+
+// We thus invoke the application service again to guess the word:
+applicationService.runUseCase(gameId, events -> WordGame.guessWord(events, gameId, guess));
+{% endcapture %}
+{% include macros/docsSnippet.html java=java kotlin=kotlin %}
+
+Writing application services like this is both powerful and simple (once you get used to it). There's less need for explicit commands and command handlers (the application service is a kind of command handler). 
+You can also use other functional techniques such as partial application to make the code look, arguably, even nicer. It's also easy to compose several calls to the domain model into one by using standard functional composition techniques. 
+For example in this case you might consider both starting a game and let the player make her first guess from a single request to the REST API. No need to change the domain model to do this, just use function composition.
+
+
+
 ### Write Condition
 
-A "write condition" can be used to specify conditional writes to the event store. Typically, the purpose of this would be to achieve [optimistic locking](https://en.wikipedia.org/wiki/Optimistic_concurrency_control) of an event stream.
+A "write condition" can be used to specify conditional writes to the event store. Typically, the purpose of this would be to achieve [optimistic concurrent control](https://en.wikipedia.org/wiki/Optimistic_concurrency_control) (optimistic locking) of an event stream.
 
 For example, image you have an `Account` to which you can deposit and withdraw money. A business rule says that it's not allowed to have a negative balance on an account.
 Now imagine an account that is shared between two persons and contains 20 EUR. Person "A" wants to withdraw 15 EUR and person "B" wants to withdraw 10 EUR. 
@@ -245,8 +353,7 @@ eventStore.write("streamId", WriteCondition.streamVersion(and(lt(10), ne(5)), ev
 {% include macros/docsSnippet.html java=java kotlin=kotlin %}
  
 where `lt`, `ne` and `and` is statically imported from `org.occurrent.condition.Condition`.           
-       
-Note that reading from a stream that doesn't exist will return `0` as version number.            
+
 
 ### EventStore Queries
 
