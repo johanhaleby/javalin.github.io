@@ -165,7 +165,7 @@ class ApplicationService constructor (val eventStore : EventStore) {
 <div class="comment">Note that typically the domain model, WordGame in this example, would not return CloudEvents but rather a stream or list of a custom data structure, domain events, that would then be <i>converted</i> to CloudEvent's. 
 This is not shown in this example above for brevity.</div>
 
-You could then call the application service like this regardless if you're starting a new game or not:
+You could then call the application service like this regardless of you're starting a new game or not:
 
 {% capture java %}
 // Here we image that we have received the data required to start a new game, e.g. from a REST endpoint. 
