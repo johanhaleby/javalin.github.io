@@ -423,7 +423,50 @@ To get started with subscriptions refer to [Using Subscriptions](#using-subscrip
 
 ## Views
 
+Occurrent has no built-in support for views/projections, it's up to you to create and store views as you find fit. But this doesn't have to be difficult!
+All you need to do is to create a [subscription](#subscriptions) and write something to a DB. Here's a trivial example of a view that maintains the number of
+ended games. It does so by inceasing the "numberOfEndedGames" field in an (imaginary) database for each "GameEnded" event that is written to the event store:
+
+{% capture java %}
+// An imaginary database API
+Database someDatabase = ...
+// Subscribe to all "GameEnded" events by starting a subscription named "my-view" 
+// and increase "numberOfEndedGames" for each ended game.   
+subscription.subscribe("my-view", filter(type("GameEnded")), cloudEvent -> someDatabase.inc("numberOfEndedGames"));        
+{% endcapture %}
+{% capture kotlin %}
+// An imaginary database API
+val someDatabase : Database = ...
+// Subscribe to all "GameEnded" events by starting a subscription named "my-view" 
+// and increase "numberOfEndedGames" for each ended game. 
+subscription.subscribe("my-view", filter(type("GameEnded"))) {  
+    someDatabase.inc("numberOfEndedGames")
+}
+{% endcapture %}
+{% include macros/docsSnippet.html java=java kotlin=kotlin %}
+
+Where `filter` is imported from org.occurrent.subscription.OccurrentSubscriptionFilter and `type`is imported from org.occurrent.condition.Condition.
+
+While this is a trivial example it shouldn't be difficult to create a view that is backed by a JPA entity in a relational database based on a subscription.
+
 ## Command Bus?
+
+Occurrent doesn't contain a built-in command bus. The reason for this is that I'm not convinced that it's needed in a majority of cases :)
+To send "commands" to another service (remotely) one could make a REST API or an RPC invocation instead of using a proprietary command bus.  
+
+But what about internally? For example if a service exposes a REST API and upon receiving a request it publishes a command that's somehow picked up and 
+routed to a function in your domain model. It's not uncommon to to use a framework in which you define your domain model like this:
+
+{% capture java %}
+WordGame {
+
+}
+{% endcapture %}
+<div class="comment">This is a made-up example of an imaginary event sourcing framework, it's not how you're encouraged to implement a domain model 
+using Occurrent.</div>
+    
+    
+ 
 
 ## Sagas?
 
