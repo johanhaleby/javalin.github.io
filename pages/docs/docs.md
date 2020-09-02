@@ -104,7 +104,7 @@ The reason for this is that you can use the same "application service" (a fancy 
 for both entity creation and subsequent use cases. For example consider this simple domain model:
 
 {% capture java %}
-public class WordGame {
+public class WordGuessingGame {
 	public static Stream<CloudEvent> startNewGame(String gameId, String wordToGuess) {	
 		...
 	}
@@ -115,7 +115,7 @@ public class WordGame {
 }
 {% endcapture %}  
 {% capture kotlin %}
- object WordGame {
+ object WordGuessingGame {
     fun startNewGame(gameId : String, wordToGuess : String) : Stream<CloudEvent> = ...	
  
     fun guessWord(eventStream : Stream<CloudEvent>, word : String) : Stream<CloudEvent> = ...
@@ -162,7 +162,7 @@ class ApplicationService constructor (val eventStore : EventStore) {
 }
 {% endcapture %}
 {% include macros/docsSnippet.html java=java kotlin=kotlin %}
-<div class="comment">Note that typically the domain model, WordGame in this example, would not return CloudEvents but rather a stream or list of a custom data structure, domain events, that would then be <i>converted</i> to CloudEvent's. 
+<div class="comment">Note that typically the domain model, WordGuessingGame in this example, would not return CloudEvents but rather a stream or list of a custom data structure, domain events, that would then be <i>converted</i> to CloudEvent's. 
 This is not shown in this example above for brevity.</div>
 
 You could then call the application service like this regardless of you're starting a new game or not:
@@ -173,14 +173,14 @@ String gameId = ...
 String wordToGuess = ...;
 
 // Then we invoke the application service to start a game:
-applicationService.runUseCase(gameId, __ -> WordGame.startNewGame(gameId, wordToGuess));  
+applicationService.runUseCase(gameId, __ -> WordGuessingGame.startNewGame(gameId, wordToGuess));  
 
 // Later a player guess a word:
 String gameId = ...
 String guess = ...;
 
 // We thus invoke the application service again to guess the word:
-applicationService.runUseCase(gameId, events -> WordGame.guessWord(events, gameId, guess));
+applicationService.runUseCase(gameId, events -> WordGuessingGame.guessWord(events, gameId, guess));
 {% endcapture %}
 {% capture kotlin %}
 // Here we image that we have received the data required to start a new game, e.g. from a REST endpoint. 
@@ -189,7 +189,7 @@ val wordToGuess : String = ...;
 
 // Then we invoke the application service to start a game:
 applicationService.runUseCase(gameId) { 
-    WordGame.startNewGame(gameId, wordToGuess)
+    WordGuessingGame.startNewGame(gameId, wordToGuess)
 }  
 
 // Later a player guess a word:
@@ -197,7 +197,7 @@ val gameId : String = ...
 val guess : String = ...;
 
 // We thus invoke the application service again to guess the word:
-applicationService.runUseCase(gameId, events -> WordGame.guessWord(events, gameId, guess));
+applicationService.runUseCase(gameId, events -> WordGuessingGame.guessWord(events, gameId, guess));
 {% endcapture %}
 {% include macros/docsSnippet.html java=java kotlin=kotlin %}
 
@@ -445,7 +445,7 @@ subscription.subscribe("my-view", filter(type("GameEnded"))) {
 {% endcapture %}
 {% include macros/docsSnippet.html java=java kotlin=kotlin %}
 
-Where `filter` is imported from org.occurrent.subscription.OccurrentSubscriptionFilter and `type`is imported from org.occurrent.condition.Condition.
+Where `filter` is imported `from org.occurrent.subscription.OccurrentSubscriptionFilter` and `type` is imported from `org.occurrent.condition.Condition`.
 
 While this is a trivial example it shouldn't be difficult to create a view that is backed by a JPA entity in a relational database based on a subscription.
 
@@ -458,15 +458,131 @@ But what about internally? For example if a service exposes a REST API and upon 
 routed to a function in your domain model. It's not uncommon to to use a framework in which you define your domain model like this:
 
 {% capture java %}
-WordGame {
+public class WordGuessingGame extends AggregateRoot {
 
+    @AggregateId
+    private String gameId;
+    private String wordToGuess;
+
+    @HandleCommand
+    public void handle(StartNewGameCommand startNewGameCommand) {
+        // Insert some validation and logic
+        ... 
+        // Publish an event using the "publish" method from AggregateRoot
+        publish(new WordGuessingGameWasStartedEvent(...));
+    }
+    
+    @HandleCommand
+    public void handle(GuessWordCommand guessWordCommand) {
+        // Some validation and implementation ...
+        ...	
+        
+        // Publish an event using the "publish" method from AggregateRoot
+        publish(new WordGuessedEvent(...));
+    }
+
+    @HandleEvent
+    public void handle(WordGuessingGameWasStartedEvent e) {
+        this.gameId = e.getGameId();
+        this.wordToGuess = e.getWordToGuess();    
+    }        
+
+    ... 
 }
 {% endcapture %}
+{% capture kotlin %}
+ class WordGuessingGame : AggregateRoot() {
+ 
+     @AggregateId
+     var gameId : String
+     var wordToGuess : String
+ 
+     @HandleCommand
+     fun handle(startNewGameCommand : StartNewGameCommand) {
+         // Insert some validation and logic
+         ... 
+         // Publish an event using the "publish" method from AggregateRoot
+         publish(WordGuessingGameWasStartedEvent(...))
+     }
+     
+     @HandleCommand
+     fun handle(guessWordCommand : GuessWordCommand) {
+         // Some validation and implementation ...
+         ...	
+         
+         // Publish an event using the "publish" method from AggregateRoot
+         publish(WordGuessedEvent(...))
+     }
+ 
+     @HandleEvent
+     fun handle(e : WordGuessingGameWasStartedEvent) {
+         gameId = e.getGameId()
+         wordToGuess = e.getWordToGuess()    
+     }        
+ 
+     ... 
+ }
+{% endcapture %}
+{% include macros/docsSnippet.html java=java kotlin=kotlin %}
 <div class="comment">This is a made-up example of an imaginary event sourcing framework, it's not how you're encouraged to implement a domain model 
 using Occurrent.</div>
+
+Let's look at a "command" and see what it typically looks like:
+
+{% capture java %}
+public class StartNewGameCommand {
     
+    @AggregateId
+    private String gameId;
+    private String wordToGuess;
     
- 
+    public void setGameId(String gameId) {
+        this.gameId = gameId;
+    }
+    
+    public String getGameId() {
+        return gameId;
+    }
+
+    public void setWordToGuess(String wordToGuess) {
+        this.gameId = gameId;
+    }
+    
+    public String getWordToGuess() {
+        return wordToGuess;
+    }
+    
+    // Equals/hashcode/tostring methods are excluded for breivty
+}
+{% endcapture %}
+{% capture kotlin %}
+data class StartNewGameCommand(@AggregateId var gameId: String, val wordToGuess : String)
+{% endcapture %}
+{% include macros/docsSnippet.html java=java kotlin=kotlin %}
+
+Now that we have our `WordGuessingGame` implementation and a command we can dispatch it to a command bus:
+{% capture java %}
+commandbus.dispatch(new StartNewGameCommand("someGameId", "Secret word"));
+{% endcapture %}
+{% capture kotlin %}
+commandbus.dispatch(StartNewGameCommand("someGameId", "Secret word"))
+{% endcapture %}
+{% include macros/docsSnippet.html java=java kotlin=kotlin %}
+
+From a typically Java perspective one could argue that this is not too bad. But it does have a few things one could improve upon from a broader perspective:
+
+1. The `WordGuessingGame` is [complecting](https://www.infoq.com/presentations/Simple-Made-Easy/) several things that may be modelled separately. 
+   Data, state, behavior, command- and event routing and event publishing are all defined in the same model (the `WordGuessingGame` class). 
+   For small examples like this it arguably doesn't matter but if you have complex logic it probably will. Keeping state and behavior separate allows
+   for easier testing, referential transparency and function composition. It allows treating the state as a [value](https://www.infoq.com/presentations/Value-Values/)
+   which has many benefits.    
+1. Commands are defined as explicit data structures (this is not _necessarily_ a bad thing but it will add to your code base) when arguably they don't have to. 
+
+So how would one dispatch commands in Occurrent? There's actually nothing stopping you from implementation a simple command bus, create explicit commands, 
+and dispatch them like the example above. Actually it would be relativley easy to implement the imaginary framework above using Occurrent components. But if
+if you've recognized the problems described above you're probably looking for a different approach. Here's another way you can do it:
+
+// Example!! Gör WordGuessingGame till macro!    
 
 ## Sagas?
 
