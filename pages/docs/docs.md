@@ -572,7 +572,7 @@ If you define your behavior like this it'll be really easy to test (and also to 
 
 But where are our commands!? In this example we've decided to represent them as functions! I.e. the "command" is modeled as simple function, e.g. `startNewGame`!
 But wait, how can I dispatch commands to this function? Don't I need to create some custom, problem specific, middleware mumbo-jumbo to achieve this?
-The answer is.... 🥁 no! Just create or copy the generic `ApplicationService` class below if you're using an object-oriented approach:         
+The answer is.... 🥁 no! Just create or copy a generic `ApplicationService` class like the one below if you're using an object-oriented approach:         
 
 {% include macros/applicationservice/generic-oo-application-service.md %}
 
@@ -597,7 +597,7 @@ applicationService.execute(gameId, events -> WordGuessingGame.startNewGame(gameI
 {% endcapture %}
 {% capture kotlin %}
 // A function that converts a CloudEvent to a "domain event"
-val convertCloudEventToDomainEvent : (CloudEvent) -> DomainEvent = 
+val convertCloudEventToDomainEvent : (CloudEvent) -> DomainEvent = ..
 // A function that a "domain event" to a CloudEvent
 val convertDomainEventToCloudEvent = (DomainEvent) -> CloudEvent  = ..
 val eventStore : EventStore = ..
@@ -635,7 +635,7 @@ val eventStore : EventStore = ..
 {% endcapture %}
 {% include macros/docsSnippet.html java=java kotlin=kotlin %}
 
-then you can compose these functions into a domain specific "application service function":
+then you can compose these functions into a generic "application service function":
 
 {% capture java %}
 // This example is using an imaginary FP library for Java that has methods such as "partially". 
