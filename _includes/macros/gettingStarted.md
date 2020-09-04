@@ -2,11 +2,11 @@
 public class GameApplicationService {
 
     private final EventStore eventStore;
-    private final Serialization serialization;
+    private final Converter converter;
 
     public GameApplicationService(EventStore eventStore, Converter converter) {
         this.eventStore = eventStore;
-        this.serialization = serialization;
+        this.converter = converter;
     }
 
     public void play(UUID gameId, Function<Stream<GameEvent>, Stream<GameEvent>> functionThatCallsDomainModel) {

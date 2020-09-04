@@ -17,8 +17,8 @@ permalink: /documentation
 * * * [Queries](#eventstore-queries)
 * * [Subscriptions](#subscriptions)
 * * [Views](#views)
-* * [Command Bus?](#command-bus)
-* * [Sagas?](#sagas)
+* * [Commands](#commands)
+* * [Sagas](#sagas)
 * [Getting Started](#getting-started)
 * [Choosing An EventStore](#choosing-an-eventstore)
 * * [MongoDB](#mongodb)
@@ -103,25 +103,7 @@ Note that reading a stream that doesn't exist (e.g. `eventStore.read("non-existi
 The reason for this is that you can use the same "application service" (a fancy word for a piece of code that loads events from the event store, applies them to the domain model and writes the new events returned to the event store) 
 for both entity creation and subsequent use cases. For example consider this simple domain model:
 
-{% capture java %}
-public class WordGuessingGame {
-	public static Stream<CloudEvent> startNewGame(String gameId, String wordToGuess) {	
-		...
-	}
-
-	public static Stream<CloudEvent> guessWord(Stream<CloudEvent> eventStream, String word) {
-		...
-	}
-}
-{% endcapture %}  
-{% capture kotlin %}
- object WordGuessingGame {
-    fun startNewGame(gameId : String, wordToGuess : String) : Stream<CloudEvent> = ...	
- 
-    fun guessWord(eventStream : Stream<CloudEvent>, word : String) : Stream<CloudEvent> = ...
- }
-{% endcapture %}
-{% include macros/docsSnippet.html java=java kotlin=kotlin %}
+{% include macros/domain/wordGuessingGameCloudEvents.md java=java kotlin=kotlin %}
  
 Then we could write a generic application service that takes a higher-order function `(Stream<CloudEvent>) -> Stream<CloudEvent>`:
 
@@ -266,7 +248,7 @@ eventStore.write("account1", events)
 {% include macros/docsSnippet.html java=java kotlin=kotlin %}
 
 <div class="comment">Note that typically the domain model, Account in this example, would not return CloudEvents but rather a stream or list of a custom data structure, domain events, that would then be <i>converted</i> to CloudEvent's. 
-This is not shown in the example above for brevity.</div>
+This is not shown in the example above for brevity, look at the <a href="#commands">command bus</a> section for a more real-life example.</div>
 
 To avoid the problem above we want to make use of conditional writes. Let's see how:
 
@@ -449,7 +431,7 @@ Where `filter` is imported `from org.occurrent.subscription.OccurrentSubscriptio
 
 While this is a trivial example it shouldn't be difficult to create a view that is backed by a JPA entity in a relational database based on a subscription.
 
-## Command Bus?
+## Commands
 
 Occurrent doesn't contain a built-in command bus. The reason for this is that I'm not convinced that it's needed in a majority of cases :)
 To send "commands" to another service (remotely) one could make a REST API or an RPC invocation instead of using a proprietary command bus.  
@@ -579,12 +561,124 @@ From a typically Java perspective one could argue that this is not too bad. But 
 1. Commands are defined as explicit data structures (this is not _necessarily_ a bad thing but it will add to your code base) when arguably they don't have to. 
 
 So how would one dispatch commands in Occurrent? There's actually nothing stopping you from implementation a simple command bus, create explicit commands, 
-and dispatch them like the example above. Actually it would be relativley easy to implement the imaginary framework above using Occurrent components. But if
-if you've recognized the problems described above you're probably looking for a different approach. Here's another way you can do it:
+and dispatch them the way we did in the example above. Actually it would be relativley easy to implement the imaginary framework above using Occurrent components. But if
+you've recognized the problems described above you're probably looking for a different approach. Here's another way you can do it. First of all let's refactor 
+our domain model to pure functions, without any state or dependencies to Occurrent or any other library/framework. 
 
-// Example!! Gör WordGuessingGame till macro!    
+{% include macros/domain/wordGuessingGameDomainEvents.md java=java kotlin=kotlin %}
 
-## Sagas?
+If you define your behavior like this it'll be really easy to test (and also to compose using normal function composition techniques). There are no side-effects 
+(such as publishing events) which also allows for easier testing and [local reasoning](https://www.inner-product.com/posts/fp-what-and-why/).
+
+But where are our commands!? In this example we've decided to represent them as functions! I.e. the "command" is modeled as simple function, e.g. `startNewGame`!
+But wait, how can I dispatch commands to this function? Don't I need to create some custom, problem specific, middleware mumbo-jumbo to achieve this?
+The answer is.... 🥁 no! Just create or copy the generic `ApplicationService` class below if you're using an object-oriented approach:         
+
+{% include macros/applicationservice/generic-oo-application-service.md %}
+
+<div class="comment">Why is this "utility" not included in Occurrent? Maybe it will in the future, but one reason is that you might want to do small tweaks to this implementation. 
+When using Spring, you might want to add a "@Transactional" annotation, or if you're using Kotlin you might want to take a higher-order function that returns a "Sequence&lt;DomainEvent&gt;" 
+instead of "Stream&lt;DomainEvent&gt;" etc etc. The reasoning is that copying and pasting this peice of code into your application will not be difficult, and then you're in full control!</div>
+
+and then use the `ApplicationService` like this:
+
+{% capture java %}
+// A function that converts a CloudEvent to a "domain event"
+Function<CloudEvent, DomainEvent> convertCloudEventToDomainEvent = ..
+// A function that a "domain event" to a CloudEvent
+Function<DomainEvent, CloudEvent> convertDomainEventToCloudEvent = ..
+EventStore eventStore = ..
+ApplicationService applicationService = new ApplicationService(eventStore, convertCloudEventToDomainEvent, convertDomainEventToCloudEvent);
+
+// Now in your REST API use the application service:
+String gameId = ... // From a form parameter
+String wordToGuess = .. // From a form parameter
+applicationService.execute(gameId, events -> WordGuessingGame.startNewGame(gameId, wordToGuess));
+{% endcapture %}
+{% capture kotlin %}
+// A function that converts a CloudEvent to a "domain event"
+val convertCloudEventToDomainEvent : (CloudEvent) -> DomainEvent = 
+// A function that a "domain event" to a CloudEvent
+val convertDomainEventToCloudEvent = (DomainEvent) -> CloudEvent  = ..
+val eventStore : EventStore = ..
+val applicationService = ApplicationService(eventStore, convertCloudEventToDomainEvent, convertDomainEventToCloudEvent);
+
+// Now in your REST API use the application service:
+val gameId = ... // From a form parameter
+val wordToGuess = .. // From a form parameter
+applicationService.execute(gameId) { events -> 
+    WordGuessingGame.startNewGame(gameId, wordToGuess)
+}
+{% endcapture %}
+{% include macros/docsSnippet.html java=java kotlin=kotlin %}
+
+If you're using a more functional approach you can create a function like this that represents an application service:
+
+{% include macros/applicationservice/generic-fp-application-service.md %}
+
+and when you have instantiated an `EventStore` and created functions that converts a CloudEvent to a DomainEvent and vice versa:
+
+{% capture java %}
+// A function that converts a CloudEvent to a "domain event"
+Function<CloudEvent, DomainEvent> convertCloudEventToDomainEvent = ..
+// A function that a "domain event" to a CloudEvent
+Function<DomainEvent, CloudEvent> convertDomainEventToCloudEvent = ..
+// The event store
+EventStore eventStore = ..
+{% endcapture %}
+{% capture kotlin %}
+// A function that converts a CloudEvent to a "domain event"
+val convertCloudEventToDomainEvent : (CloudEvent) -> DomainEvent = 
+// A function that a "domain event" to a CloudEvent
+val convertDomainEventToCloudEvent = (DomainEvent) -> CloudEvent  = ..
+val eventStore : EventStore = ..
+{% endcapture %}
+{% include macros/docsSnippet.html java=java kotlin=kotlin %}
+
+then you can compose these functions into a domain specific "application service function":
+
+{% capture java %}
+// This example is using an imaginary FP library for Java that has methods such as "partially". 
+// You might want to look into "Vavr" or "Functional Java" which includes functions like this  
+BiConsumer<String, Function<Stream<DomainEvent>, Stream<DomainEvent>> applicationService = (streamId, domainFn) -> 
+            partially(ApplicationService::execute, evenStore, streamId)
+            .andThen( domainEventsInStream -> domainEventsInStream.map(convertCloudEventToDomainEvent))
+            .andThen(domainFn)
+            .andThen( newDomainEvents -> newDomainEvents.map(convertDomainEventToCloudEvent));       
+{% endcapture %}
+{% capture kotlin %}
+// This example is using an imaginary FP library for Kotlin that has methods such as "partially" and "andThen". 
+// You might want to look into the Kotlin "arrow" library which include these functions.
+val applicationService = (String, (Stream<DomainEvent>) -> Stream<DomainEvent>)) = { streamId, domainFn -> 
+         partially(ApplicationService::execute, evenStore, streamId)
+         .andThen { domainEventsInStream -> domainEventsInStream.map(convertCloudEventToDomainEvent)) }
+         .andThen(domainFn)
+         .andThen { newDomainEvents -> newDomainEvents.map(convertDomainEventToCloudEvent) }
+}
+
+{% endcapture %}
+{% include macros/docsSnippet.html java=java kotlin=kotlin %}
+
+and then use the "application service function" like this:
+
+{% capture java %}
+// Now in your REST API use the application service function:
+String gameId = ... // From a form parameter
+String wordToGuess = .. // From a form parameter
+applicationService.consume(gameId, events -> WordGuessingGame.startNewGame(gameId, wordToGuess));
+{% endcapture %}
+{% capture kotlin %}
+// Now in your REST API use the application service function:
+val gameId = ... // From a form parameter
+val wordToGuess = .. // From a form parameter
+applicationService(gameId) { events -> 
+    WordGuessingGame.startNewGame(gameId, wordToGuess)
+}
+{% endcapture %}
+{% include macros/docsSnippet.html java=java kotlin=kotlin %}
+
+
+## Sagas
 
 # Getting started
 
@@ -607,7 +701,7 @@ There are currently two different datastores to choose from, [MongoDB](#mongodb)
 
 Uses MongoDB, version 4.2 or above, as  the underlying datastore for the CloudEvents. All implementations use transactions to guarantee consistent writes (see [WriteCondition](#write-condition)).
 Each EventStore will automatically create a few indexes (TODO describe these) on startup to allow for fast consistent writes, optimistic concurrency control and to avoid duplicated events.
-These indexes can also be used in queries against the EventStore (see [EventStoreQueries](#eventstore-queries))). (TODO Also suggest wildcard indexes if `EventStoreQueries` is used)  
+These indexes can also be used in queries against the EventStore (see [EventStoreQueries](#eventstore-queries)). (TODO Also suggest wildcard indexes if `EventStoreQueries` is used)  
  
 There are three different MongoDB EventStore implementations to choose from:
 * [Native Driver](#eventstore-with-mongodb-native-driver)
@@ -646,7 +740,7 @@ Now you can start reading and writing events to the EventStore:
 
 | Name  | Description  | 
 |:----|:-----|  
-| [Number&nbsp;Guessing&nbsp;Game](https://github.com/johanhaleby/occurrent/tree/master/example/domain/number-guessing-game/mongodb/native) | A simple game implemented using a pure domain model and stores events in MongoDB using `MongoEventStore`. It also generates integration events and publishes these to RabbitMQ. |
+| [Number&nbsp;Guessing&nbsp;Game](https://gitthub.com/johanhaleby/occurrent/tree/master/example/domain/number-guessing-game/mongodb/native) | A simple game implemented using a pure domain model and stores events in MongoDB using `MongoEventStore`. It also generates integration events and publishes these to RabbitMQ. |
 
 
 ### EventStore with Spring MongoTemplate (Blocking)  
