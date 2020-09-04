@@ -14,7 +14,6 @@ permalink: /
     {% include macros/gettingStarted.md %}
     <div class="center">
         <a class="landing-btn" href="/documentation">Show me the docs</a>
-        <a class="landing-btn" href="/tutorials">Show me tutorials</a>
     </div>
 </div>
 
